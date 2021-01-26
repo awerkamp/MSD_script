@@ -12,7 +12,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-    
+
     use_arguments(argc, argv);   // deactivate when testing in CLion
 //    Catch::Session().run(1,argv); // activate when testing in Clion
 

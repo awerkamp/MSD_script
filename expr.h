@@ -5,6 +5,8 @@
 #ifndef MSD_SCRIPT_EXPR_H
 #define MSD_SCRIPT_EXPR_H
 
+#include<string>
+
 class Expr {
 public:
     virtual bool equals(Expr *e) = 0;

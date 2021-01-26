@@ -4,6 +4,7 @@
 
 #include "expr.h"
 #include "catch.hpp"
+#include<string>
 
 
 Num::Num(int val) {
