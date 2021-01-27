@@ -5,6 +5,7 @@
 #include "expr.h"
 #include "catch.hpp"
 #include<string>
+#include <stdexcept>
 
 
 Num::Num(int val) {
@@ -19,18 +20,16 @@ bool Num::equals(Expr *e) {
         return (this->val == t->val);
     }
 }
-
-Var::Var(std::string name) {
-    this->name = name;
+ int Num::interp() {
+    return this->val;
 }
 
-bool Var::equals(Expr *e) {
-    Var *t = dynamic_cast<Var*>(e);
-    if (t == nullptr) {
-        return false;
-    } else {
-        return (this->name == t->name);
-    }
+bool Num::has_variable() {
+    return false;
+}
+
+Expr* Num::subst(std::string s, Expr *e) {
+    return this;
 }
 
 Add::Add(Expr *lhs, Expr *rhs) {
@@ -47,6 +46,18 @@ bool Add::equals(Expr *e) {
     }
 }
 
+int Add::interp() {
+    return this->lhs->interp() + this->rhs->interp();
+}
+
+bool Add::has_variable() {
+    return (this->lhs->has_variable() || this->rhs->has_variable());
+}
+
+Expr* Add::subst(std::string s, Expr *e) {
+    return new Add(this->lhs->subst(s,e),this->rhs->subst(s,e));
+}
+
 Mult::Mult(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
     this->rhs = rhs;
@@ -61,26 +72,57 @@ bool Mult::equals(Expr *e) {
     }
 }
 
-int num1 = 4;
-int num2 = 5;
-int num5 = 10;
-int num6 = 11;
+int Mult::interp() {
+    return this->lhs->interp() * this->rhs->interp();
+}
+
+bool Mult::has_variable() {
+    return (this->lhs->has_variable() || this->rhs->has_variable());
+}
+
+Expr* Mult::subst(std::string s, Expr *e) {
+    return new Mult(this->lhs->subst(s,e), this->rhs->subst(s,e));
+}
+
+Var::Var(std::string name) {
+    this->name = name;
+}
+
+bool Var::equals(Expr *e) {
+    Var *t = dynamic_cast<Var*>(e);
+    if (t == nullptr) {
+        return false;
+    } else {
+        return (this->name == t->name);
+    }
+}
+
+int Var::interp() {
+    throw std::runtime_error("There is no value for this expression");
+}
+
+bool Var::has_variable() {
+    return true;
+}
+
+
+Expr* Var::subst(std::string s, Expr *e) {
+    if (this->name == s) {
+        return e;
+    } else {
+        return this;
+    }
+}
 
 TEST_CASE("equals") {
-    int a[] = { 1, 2, 3, 4};
-//    Expr* expr = new Expr();
-//    Expr* lhs = new Expr(3);
-//    Add* add = new Add(new Expr*(), new Expr*());
 
     Expr* num1 = new Num(1);
     Expr* num2 = new Num(2);
     Expr* num3 = new Num(3);
     Expr* num4 = new Num(4);
     Expr* num5 = new Num(5);
-    Expr* num6 = new Num(6);
     Expr* var1 = new Var("var1");
     Expr* var2 = new Var("var2");
-
 
     CHECK((new Add(num1, num2))->equals(new Add(num1, num2)) == true);
     CHECK((new Add(num1, num5))->equals(new Add(num3, num3)) == false);
@@ -90,6 +132,71 @@ TEST_CASE("equals") {
     CHECK((var1)->equals(var2) == false);
     CHECK((new Mult(num1, num2))->equals(new Mult(num1, num2)) == true);
     CHECK((new Mult(num1, num2))->equals(new Mult(num1, num3)) == false);
-
 }
 
+TEST_CASE("Interp") {
+
+    Expr* num1 = new Num(1);
+    Expr* num2 = new Num(2);
+    Expr* num3 = new Num(3);
+
+    // Add
+    CHECK((((new Add(num1, num2))->interp())==(num3->interp())) == true); // 3 == 3
+    CHECK((((new Add(num1, num2))->interp())==(num1->interp())) == false); // 3 == 1
+
+    // Variables
+    CHECK_THROWS_WITH( (new Var("x"))->interp(), "There is no value for this expression" );
+
+    // Multiply
+    CHECK((((new Mult(num1, num2))->interp())==(num2->interp())) == true); // 2 == 2
+    CHECK((((new Mult(num1, num2))->interp())==(num3->interp())) == false); // 2 == 3
+
+    //Num
+    CHECK(((num2->interp())==(num2->interp())) == true); // 2 == 2
+    CHECK(((num2->interp())==(num3->interp())) == false); // 2 == 3
+}
+
+TEST_CASE("has_variable") {
+
+    Expr* num1 = new Num(1);
+    Expr* num2 = new Num(2);
+    Expr* num3 = new Num(3);
+    Expr* var1 = new Var("var1");
+    Expr* var2 = new Var("var2");
+
+    // Add
+    CHECK(((new Add(num1, var1))->has_variable()) == true); // var1
+    CHECK(((new Add(num1, num2))->has_variable()) == false); // no var
+
+    // Mult
+    CHECK(((new Mult(num1, var1))->has_variable()) == true); // var1
+    CHECK(((new Mult(num1, num2))->has_variable()) == false); // no var
+
+    // Complex
+    CHECK(((new Mult(new Add(num1, var2), num2))->has_variable()) == true); // var2
+    CHECK(((new Mult(new Add(num1, num2), num2))->has_variable()) == false); // no var
+
+    // Var
+    CHECK(var2->has_variable() == true); // var2
+
+    // Num
+    CHECK(num3->has_variable() == false); // no var
+}
+
+TEST_CASE("subst") {
+
+    CHECK( (new Add(new Var("x"), new Num(7)))
+                   ->subst("x", new Var("y"))
+                   ->equals(new Add(new Var("y"), new Num(7))) );
+
+    // Var
+    CHECK(((new Var("x"))->subst("x", new Var("y"))->equals(new Var("y"))) == true);
+    CHECK(((new Var("x"))->subst("x", new Var("y"))->equals(new Var("x"))) == false);
+
+    // Num
+    CHECK(((new Num(1))->subst("x", new Var("y"))->equals(new Num(1))) == true);
+
+    // Add
+    CHECK(((new Add(new Var("x"), new Num(7)))->subst("x", new Var("y"))->equals(new Add(new Var("y"), new Num(7)))) == true);
+
+}

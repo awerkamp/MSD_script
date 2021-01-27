@@ -7,7 +7,7 @@
 
 #define CATCH_CONFIG_RUNNER // deactivate when testing in Clion
 #include "catch.hpp" // deactivate when testing in Clion
-#include "expr.cpp" // deactivate when testing in Clion
+//#include "expr.cpp" // deactivate when testing in Clion
 
 using namespace std;
 
