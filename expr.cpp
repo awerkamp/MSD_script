@@ -7,7 +7,6 @@
 #include<string>
 #include <stdexcept>
 
-
 Num::Num(int val) {
     this->val = val;
 };
@@ -185,10 +184,6 @@ TEST_CASE("has_variable") {
 
 TEST_CASE("subst") {
 
-    CHECK( (new Add(new Var("x"), new Num(7)))
-                   ->subst("x", new Var("y"))
-                   ->equals(new Add(new Var("y"), new Num(7))) );
-
     // Var
     CHECK(((new Var("x"))->subst("x", new Var("y"))->equals(new Var("y"))) == true);
     CHECK(((new Var("x"))->subst("x", new Var("y"))->equals(new Var("x"))) == false);
@@ -197,8 +192,12 @@ TEST_CASE("subst") {
     CHECK(((new Num(1))->subst("x", new Var("y"))->equals(new Num(1))) == true);
 
     // Add
+    CHECK( (new Add(new Var("x"), new Num(7)))
+                   ->subst("x", new Var("y"))
+                   ->equals(new Add(new Var("y"), new Num(7))) );
 
-//
-//    CHECK(((new Add(new Var("y"), new Num(7)))->equals(new Add(new Var("y"), new Num(7)))) == false);
-    //
+    // Mult
+    CHECK( (new Mult(new Var("x"), new Num(7)))
+                   ->subst("x", new Var("y"))
+                   ->equals(new Mult(new Var("y"), new Num(7))) );
 }
