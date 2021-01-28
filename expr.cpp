@@ -42,7 +42,7 @@ bool Add::equals(Expr *e) {
     if (t == nullptr) {
         return false;
     } else {
-        return (this->lhs == t->lhs && this->rhs == t->rhs);
+        return (this->lhs->equals(t->lhs) && this->rhs->equals(t->rhs));
     }
 }
 
@@ -68,7 +68,7 @@ bool Mult::equals(Expr *e) {
     if (t == nullptr) {
         return false;
     } else {
-        return (this->lhs == t->lhs && this->rhs == t->rhs);
+        return (this->lhs->equals(t->lhs) && this->rhs->equals(t->rhs));
     }
 }
 
@@ -197,6 +197,8 @@ TEST_CASE("subst") {
     CHECK(((new Num(1))->subst("x", new Var("y"))->equals(new Num(1))) == true);
 
     // Add
-    CHECK(((new Add(new Var("x"), new Num(7)))->subst("x", new Var("y"))->equals(new Add(new Var("y"), new Num(7)))) == true);
 
+//
+//    CHECK(((new Add(new Var("y"), new Num(7)))->equals(new Add(new Var("y"), new Num(7)))) == false);
+    //
 }
