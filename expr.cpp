@@ -12,12 +12,6 @@
 
 using namespace std;
 
-enum printStatus {
-    print_group_none,
-    print_group_add,
-    print_group_add_or_mult
-} printStatus;
-
 std::string Expr::to_string(std::ostream &out) {
     this->print(out);
     std::stringstream ss;
@@ -25,9 +19,21 @@ std::string Expr::to_string(std::ostream &out) {
     return ss.str();
 }
 
+std::string Expr::to_string_pretty(std::ostream &out) {
+    this->pretty_print(out);
+    std::stringstream ss;
+    ss << out.rdbuf();
+    return ss.str();
+}
+
+
+void Expr::pretty_print(std::ostream &out) {
+    pretty_print_at(out, print_group_none);
+}
+
 Num::Num(int val) {
     this->val = val;
-};
+}
 
 bool Num::equals(Expr *e) {
     Num *t = dynamic_cast<Num*>(e);
@@ -54,7 +60,7 @@ void Num::print(std::ostream &out) {
     out << this->val;
 }
 
-void Num::pretty_print(std::ostream &out) {
+void Num::pretty_print_at(std::ostream &out, enum printStatus status) {
     out << this->val;
 }
 
@@ -92,20 +98,20 @@ void Add::print(std::ostream &out) {
     out << ")";
 }
 
-void Add::pretty_print(std::ostream &out) {
+void Add::pretty_print_at(std::ostream &out, enum printStatus status) {
 
-    if(printStatus == print_group_add || printStatus == print_group_add_or_mult) {
+    if(status == print_group_add || status == print_group_add_or_mult) {
         out << "(";
-        printStatus = print_group_none;
-        this->lhs->pretty_print(out);
+        status = print_group_none;
+        this->lhs->pretty_print_at(out, status);
         out << " + ";
-        this->rhs->pretty_print(out);
+        this->rhs->pretty_print_at(out, status);
         out << ")";
     } else {
-        printStatus = print_group_none;
-        this->lhs->pretty_print(out);
+        status = print_group_none;
+        this->lhs->pretty_print_at(out, status);
         out << " + ";
-        this->rhs->pretty_print(out);
+        this->rhs->pretty_print_at(out, status);
     }
 }
 
@@ -143,24 +149,23 @@ void Mult::print(std::ostream &out) {
     out << ")";
 }
 
-void Mult::pretty_print(std::ostream &out){
+void Mult::pretty_print_at(std::ostream &out, enum printStatus status){
 
-    if(printStatus == print_group_add_or_mult) {
+    if(status == print_group_add_or_mult) {
         out << "(";
-        printStatus = print_group_add_or_mult;
-        this->lhs->pretty_print(out);
+        status = print_group_add_or_mult;
+        this->lhs->pretty_print_at(out, status);
         out << " * ";
-        printStatus = print_group_add;
-        this->rhs->pretty_print(out);
+        status = print_group_add;
+        this->rhs->pretty_print_at(out, status);
         out << ")";
     } else {
-        printStatus = print_group_add_or_mult;
-        this->lhs->pretty_print(out);
+        status = print_group_add_or_mult;
+        this->lhs->pretty_print_at(out, status);
         out << " * ";
-        printStatus = print_group_add;
-        this->rhs->pretty_print(out);
+        status = print_group_add;
+        this->rhs->pretty_print_at(out, status);
     }
-    printStatus = print_group_none;
 }
 
 Var::Var(std::string name) {
@@ -184,7 +189,6 @@ bool Var::has_variable() {
     return true;
 }
 
-
 Expr* Var::subst(std::string s, Expr *e) {
     if (this->name == s) {
         return e;
@@ -197,6 +201,6 @@ void Var::print(std::ostream &out) {
     out << this->name;
 }
 
-void Var::pretty_print(std::ostream &out){
+void Var::pretty_print_at(std::ostream &out, enum printStatus status){
     out << this->name;
 }

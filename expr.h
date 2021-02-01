@@ -20,9 +20,15 @@ public:
     virtual bool has_variable() = 0;
     virtual Expr* subst(std::string s, Expr* e) = 0;
     virtual void print(std::ostream &out) = 0;
-    virtual void pretty_print(std::ostream &out) = 0;
-
+    enum printStatus {
+        print_group_none,
+        print_group_add,
+        print_group_add_or_mult
+    } printStatus;
+    void pretty_print(std::ostream &out);
+    virtual void pretty_print_at(std::ostream &out, enum printStatus status) = 0;
     std::string to_string(std::ostream &out);
+    std::string to_string_pretty(std::ostream &out);
 };
 
 class Num : public Expr {
@@ -34,9 +40,7 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print(std::ostream &out) override;
-
-
+    void pretty_print_at(std::ostream &out, enum printStatus status) override;
 };
 
 class Add : public Expr {
@@ -49,7 +53,7 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print(std::ostream &out) override;
+    void pretty_print_at(std::ostream &out, enum printStatus status) override;
 };
 
 class Mult : public Expr {
@@ -62,8 +66,7 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print(std::ostream &out) override;
-
+    void pretty_print_at(std::ostream &out, enum printStatus status) override;
 };
 
 class Var : public Expr {
@@ -75,7 +78,7 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print(std::ostream &out) override;
+    void pretty_print_at(std::ostream &out, enum printStatus status) override;
 };
 
 
