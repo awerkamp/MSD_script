@@ -6,6 +6,12 @@
 #define MSD_SCRIPT_EXPR_H
 
 #include<string>
+#include<iostream>
+using namespace std;
+
+//int accumulator;
+
+
 
 class Expr {
 public:
@@ -13,6 +19,10 @@ public:
     virtual int interp() = 0;
     virtual bool has_variable() = 0;
     virtual Expr* subst(std::string s, Expr* e) = 0;
+    virtual void print(std::ostream &out) = 0;
+    virtual void pretty_print(std::ostream &out) = 0;
+
+    std::string to_string(std::ostream &out);
 };
 
 class Num : public Expr {
@@ -23,6 +33,10 @@ public:
     int interp() override;
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
+    void print(std::ostream &out) override;
+    void pretty_print(std::ostream &out) override;
+
+
 };
 
 class Add : public Expr {
@@ -34,6 +48,8 @@ public:
     int interp() override;
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
+    void print(std::ostream &out) override;
+    void pretty_print(std::ostream &out) override;
 };
 
 class Mult : public Expr {
@@ -45,6 +61,9 @@ public:
     int interp() override;
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
+    void print(std::ostream &out) override;
+    void pretty_print(std::ostream &out) override;
+
 };
 
 class Var : public Expr {
@@ -55,6 +74,8 @@ public:
     int interp() override;
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
+    void print(std::ostream &out) override;
+    void pretty_print(std::ostream &out) override;
 };
 
 

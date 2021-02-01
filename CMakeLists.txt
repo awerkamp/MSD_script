@@ -8,6 +8,7 @@ include_directories(.)
 add_executable(MSD_script
         cmdline.h
         expr.h
+        tests.cpp
         expr.cpp
         main.cpp)
 

@@ -3,9 +3,27 @@
 //
 
 #include "expr.h"
-#include "catch.hpp"
+
 #include<string>
 #include <stdexcept>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+
+using namespace std;
+
+enum printStatus {
+    print_group_none,
+    print_group_add,
+    print_group_add_or_mult
+} printStatus;
+
+std::string Expr::to_string(std::ostream &out) {
+    this->print(out);
+    std::stringstream ss;
+    ss << out.rdbuf();
+    return ss.str();
+}
 
 Num::Num(int val) {
     this->val = val;
@@ -19,6 +37,7 @@ bool Num::equals(Expr *e) {
         return (this->val == t->val);
     }
 }
+
  int Num::interp() {
     return this->val;
 }
@@ -29,6 +48,14 @@ bool Num::has_variable() {
 
 Expr* Num::subst(std::string s, Expr *e) {
     return this;
+}
+
+void Num::print(std::ostream &out) {
+    out << this->val;
+}
+
+void Num::pretty_print(std::ostream &out) {
+    out << this->val;
 }
 
 Add::Add(Expr *lhs, Expr *rhs) {
@@ -57,6 +84,31 @@ Expr* Add::subst(std::string s, Expr *e) {
     return new Add(this->lhs->subst(s,e),this->rhs->subst(s,e));
 }
 
+void Add::print(std::ostream &out) {
+    out << "(";
+    this->lhs->print(out);
+    out << "+";
+    this->rhs->print(out);
+    out << ")";
+}
+
+void Add::pretty_print(std::ostream &out) {
+
+    if(printStatus == print_group_add || printStatus == print_group_add_or_mult) {
+        out << "(";
+        printStatus = print_group_none;
+        this->lhs->pretty_print(out);
+        out << " + ";
+        this->rhs->pretty_print(out);
+        out << ")";
+    } else {
+        printStatus = print_group_none;
+        this->lhs->pretty_print(out);
+        out << " + ";
+        this->rhs->pretty_print(out);
+    }
+}
+
 Mult::Mult(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
     this->rhs = rhs;
@@ -81,6 +133,34 @@ bool Mult::has_variable() {
 
 Expr* Mult::subst(std::string s, Expr *e) {
     return new Mult(this->lhs->subst(s,e), this->rhs->subst(s,e));
+}
+
+void Mult::print(std::ostream &out) {
+    out << "(";
+    this->lhs->print(out);
+    out << "*";
+    this->rhs->print(out);
+    out << ")";
+}
+
+void Mult::pretty_print(std::ostream &out){
+
+    if(printStatus == print_group_add_or_mult) {
+        out << "(";
+        printStatus = print_group_add_or_mult;
+        this->lhs->pretty_print(out);
+        out << " * ";
+        printStatus = print_group_add;
+        this->rhs->pretty_print(out);
+        out << ")";
+    } else {
+        printStatus = print_group_add_or_mult;
+        this->lhs->pretty_print(out);
+        out << " * ";
+        printStatus = print_group_add;
+        this->rhs->pretty_print(out);
+    }
+    printStatus = print_group_none;
 }
 
 Var::Var(std::string name) {
@@ -113,91 +193,10 @@ Expr* Var::subst(std::string s, Expr *e) {
     }
 }
 
-TEST_CASE("equals") {
-
-    Expr* num1 = new Num(1);
-    Expr* num2 = new Num(2);
-    Expr* num3 = new Num(3);
-    Expr* num4 = new Num(4);
-    Expr* num5 = new Num(5);
-    Expr* var1 = new Var("var1");
-    Expr* var2 = new Var("var2");
-
-    CHECK((new Add(num1, num2))->equals(new Add(num1, num2)) == true);
-    CHECK((new Add(num1, num5))->equals(new Add(num3, num3)) == false);
-    CHECK((num1)->equals(num1) == true);
-    CHECK((num1)->equals(num2) == false);
-    CHECK((var1)->equals(var1) == true);
-    CHECK((var1)->equals(var2) == false);
-    CHECK((new Mult(num1, num2))->equals(new Mult(num1, num2)) == true);
-    CHECK((new Mult(num1, num2))->equals(new Mult(num1, num3)) == false);
+void Var::print(std::ostream &out) {
+    out << this->name;
 }
 
-TEST_CASE("Interp") {
-
-    Expr* num1 = new Num(1);
-    Expr* num2 = new Num(2);
-    Expr* num3 = new Num(3);
-
-    // Add
-    CHECK((((new Add(num1, num2))->interp())==(num3->interp())) == true); // 3 == 3
-    CHECK((((new Add(num1, num2))->interp())==(num1->interp())) == false); // 3 == 1
-
-    // Variables
-    CHECK_THROWS_WITH( (new Var("x"))->interp(), "There is no value for this expression" );
-
-    // Multiply
-    CHECK((((new Mult(num1, num2))->interp())==(num2->interp())) == true); // 2 == 2
-    CHECK((((new Mult(num1, num2))->interp())==(num3->interp())) == false); // 2 == 3
-
-    //Num
-    CHECK(((num2->interp())==(num2->interp())) == true); // 2 == 2
-    CHECK(((num2->interp())==(num3->interp())) == false); // 2 == 3
-}
-
-TEST_CASE("has_variable") {
-
-    Expr* num1 = new Num(1);
-    Expr* num2 = new Num(2);
-    Expr* num3 = new Num(3);
-    Expr* var1 = new Var("var1");
-    Expr* var2 = new Var("var2");
-
-    // Add
-    CHECK(((new Add(num1, var1))->has_variable()) == true); // var1
-    CHECK(((new Add(num1, num2))->has_variable()) == false); // no var
-
-    // Mult
-    CHECK(((new Mult(num1, var1))->has_variable()) == true); // var1
-    CHECK(((new Mult(num1, num2))->has_variable()) == false); // no var
-
-    // Complex
-    CHECK(((new Mult(new Add(num1, var2), num2))->has_variable()) == true); // var2
-    CHECK(((new Mult(new Add(num1, num2), num2))->has_variable()) == false); // no var
-
-    // Var
-    CHECK(var2->has_variable() == true); // var2
-
-    // Num
-    CHECK(num3->has_variable() == false); // no var
-}
-
-TEST_CASE("subst") {
-
-    // Var
-    CHECK(((new Var("x"))->subst("x", new Var("y"))->equals(new Var("y"))) == true);
-    CHECK(((new Var("x"))->subst("x", new Var("y"))->equals(new Var("x"))) == false);
-
-    // Num
-    CHECK(((new Num(1))->subst("x", new Var("y"))->equals(new Num(1))) == true);
-
-    // Add
-    CHECK( (new Add(new Var("x"), new Num(7)))
-                   ->subst("x", new Var("y"))
-                   ->equals(new Add(new Var("y"), new Num(7))) );
-
-    // Mult
-    CHECK( (new Mult(new Var("x"), new Num(7)))
-                   ->subst("x", new Var("y"))
-                   ->equals(new Mult(new Var("y"), new Num(7))) );
+void Var::pretty_print(std::ostream &out){
+    out << this->name;
 }
