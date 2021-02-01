@@ -102,16 +102,14 @@ void Add::pretty_print_at(std::ostream &out, enum printStatus status) {
 
     if(status == print_group_add || status == print_group_add_or_mult) {
         out << "(";
-        status = print_group_none;
-        this->lhs->pretty_print_at(out, status);
+        this->lhs->pretty_print_at(out, print_group_add);
         out << " + ";
-        this->rhs->pretty_print_at(out, status);
+        this->rhs->pretty_print_at(out, print_group_none);
         out << ")";
     } else {
-        status = print_group_none;
-        this->lhs->pretty_print_at(out, status);
+        this->lhs->pretty_print_at(out, print_group_add);
         out << " + ";
-        this->rhs->pretty_print_at(out, status);
+        this->rhs->pretty_print_at(out, print_group_none);
     }
 }
 
@@ -153,18 +151,14 @@ void Mult::pretty_print_at(std::ostream &out, enum printStatus status){
 
     if(status == print_group_add_or_mult) {
         out << "(";
-        status = print_group_add_or_mult;
-        this->lhs->pretty_print_at(out, status);
+        this->lhs->pretty_print_at(out, print_group_add_or_mult);
         out << " * ";
-        status = print_group_add;
-        this->rhs->pretty_print_at(out, status);
+        this->rhs->pretty_print_at(out, print_group_add);
         out << ")";
     } else {
-        status = print_group_add_or_mult;
-        this->lhs->pretty_print_at(out, status);
+        this->lhs->pretty_print_at(out, print_group_add_or_mult);
         out << " * ";
-        status = print_group_add;
-        this->rhs->pretty_print_at(out, status);
+        this->rhs->pretty_print_at(out, print_group_add);
     }
 }
 

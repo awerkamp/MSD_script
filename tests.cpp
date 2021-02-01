@@ -129,10 +129,13 @@ TEST_CASE("pretty_print") {
     CHECK(((new Mult((new Mult(num1, num2)), new Num(1)))->to_string_pretty(out)) == "(1 * 2) * 1");
     CHECK(((new Mult((new Num(1)), new Mult(num1, num2)))->to_string_pretty(out)) == "1 * 1 * 2");
     CHECK(((new Add((new Mult(num1, num2)), new Num(1)))->to_string_pretty(out)) == "1 * 2 + 1");
-    CHECK(((new Add((new Add(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "1 + 2 + 1 * 2");
-    CHECK(((new Add((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty(out)) == "1 + 2 + 1 + 2");
-    CHECK(((new Add((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty(out)) == "1 + 2 + 1 + 2");
+    CHECK(((new Add((new Add(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "(1 + 2) + 1 * 2");
+    CHECK(((new Add((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty(out)) == "(1 + 2) + 1 + 2");
     CHECK(((new Mult((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "(1 * 2) * 1 * 2");
     CHECK(((new Mult((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty(out)) == "(1 + 2) * (1 + 2)");
     CHECK(((new Add((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "1 * 2 + 1 * 2");
+
+    CHECK(((new Add((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "1 * 2 + 1 * 2");
+    CHECK(((new Add((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty(out)) == "(1 + 2) + 1 + 2");
+
 }
