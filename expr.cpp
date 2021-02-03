@@ -26,7 +26,6 @@ std::string Expr::to_string_pretty(std::ostream &out) {
     return ss.str();
 }
 
-
 void Expr::pretty_print(std::ostream &out) {
     pretty_print_at(out, print_group_none);
 }

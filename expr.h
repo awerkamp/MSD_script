@@ -9,10 +9,6 @@
 #include<iostream>
 using namespace std;
 
-//int accumulator;
-
-
-
 class Expr {
 public:
     virtual bool equals(Expr *e) = 0;

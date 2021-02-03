@@ -1,0 +1,4 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_CXX_FLAGS=-fprofile-instr-generate -fcoverage-mapping" "-DCMAKE_C_FLAGS=-fprofile-instr-generate -fcoverage-mapping" -G "CodeBlocks - Unix Makefiles" /Users/awerkamp/Programming/MSD_script
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/awerkamp/Programming/MSD_script/cmake-build-debug-coverage

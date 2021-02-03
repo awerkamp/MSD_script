@@ -17,12 +17,22 @@ TEST_CASE("equals") {
 
     CHECK((new Add(num1, num2))->equals(new Add(num1, num2)) == true);
     CHECK((new Add(num1, num5))->equals(new Add(num3, num3)) == false);
+    CHECK((new Add(num1, num5))->equals(new Mult(num3, num3)) == false);
+
     CHECK((num1)->equals(num1) == true);
     CHECK((num1)->equals(num2) == false);
+    CHECK((num1)->equals(var1) == false);
+
+
     CHECK((var1)->equals(var1) == true);
     CHECK((var1)->equals(var2) == false);
+    CHECK((var1)->equals(num2) == false);
+
+
     CHECK((new Mult(num1, num2))->equals(new Mult(num1, num2)) == true);
     CHECK((new Mult(num1, num2))->equals(new Mult(num1, num3)) == false);
+    CHECK((new Mult(num1, num2))->equals(new Add(num1, num3)) == false);
+
 }
 
 TEST_CASE("Interp") {
@@ -79,6 +89,7 @@ TEST_CASE("subst") {
     // Var
     CHECK(((new Var("x"))->subst("x", new Var("y"))->equals(new Var("y"))) == true);
     CHECK(((new Var("x"))->subst("x", new Var("y"))->equals(new Var("x"))) == false);
+    CHECK(((new Var("x"))->subst("y", new Var("y"))->equals(new Var("y"))) == false);
 
     // Num
     CHECK(((new Num(1))->subst("x", new Var("y"))->equals(new Num(1))) == true);
@@ -113,14 +124,14 @@ TEST_CASE("print") {
     CHECK(((new Mult((new Mult(num1, num2)), new Mult(num1, num2)))->to_string(out)) == "((1*2)*(1*2))");
     CHECK(((new Mult((new Add(num1, num2)), new Add(num1, num2)))->to_string(out)) == "((1+2)*(1+2))");
     CHECK(((new Add((new Mult(num1, num2)), new Mult(num1, num2)))->to_string(out)) == "((1*2)+(1*2))");
+    CHECK((new Var("x"))->to_string(out) == "x");
 }
-
 
 TEST_CASE("pretty_print") {
 
     Expr* num1 = new Num(1);
     Expr* num2 = new Num(2);
-//
+
     std::ostream out(nullptr);
     std::stringbuf str;
     out.rdbuf(&str);
@@ -134,8 +145,30 @@ TEST_CASE("pretty_print") {
     CHECK(((new Mult((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "(1 * 2) * 1 * 2");
     CHECK(((new Mult((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty(out)) == "(1 + 2) * (1 + 2)");
     CHECK(((new Add((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "1 * 2 + 1 * 2");
-
     CHECK(((new Add((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "1 * 2 + 1 * 2");
     CHECK(((new Add((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty(out)) == "(1 + 2) + 1 + 2");
+    CHECK((new Var("x"))->to_string_pretty(out) == "x");
+}
 
+std::string to_string(std::ostream &out) {
+    std::stringstream ss;
+    ss << out.rdbuf();
+    return ss.str();
+}
+
+TEST_CASE("pretty_print_at") {
+
+    Expr* num1 = new Num(1);
+    Expr* num2 = new Num(2);
+
+    std::ostream out(nullptr);
+    std::stringbuf str;
+    out.rdbuf(&str);
+
+    num1->pretty_print_at(out, Expr::print_group_none);
+    CHECK(to_string(out) == "1");
+
+    out.clear();
+    (new Add((new Add(num1, num2)), new Add(num1, num2)))->pretty_print_at(out, Expr::print_group_none);
+    CHECK(to_string(out) == "(1 + 2) + 1 + 2");
 }
