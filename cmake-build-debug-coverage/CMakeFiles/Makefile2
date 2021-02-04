@@ -64,10 +64,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/awerkamp/Programming/MSD_script
+CMAKE_SOURCE_DIR = /Users/awerkamp/Programming/15_matthew_software_eng/MSD_script
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/awerkamp/Programming/MSD_script/cmake-build-debug-coverage
+CMAKE_BINARY_DIR = /Users/awerkamp/Programming/15_matthew_software_eng/MSD_script/cmake-build-debug-coverage
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -94,14 +94,14 @@ clean: CMakeFiles/MSD_script.dir/clean
 CMakeFiles/MSD_script.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MSD_script.dir/build.make CMakeFiles/MSD_script.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MSD_script.dir/build.make CMakeFiles/MSD_script.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/awerkamp/Programming/MSD_script/cmake-build-debug-coverage/CMakeFiles --progress-num=1,2,3,4,5 "Built target MSD_script"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/awerkamp/Programming/15_matthew_software_eng/MSD_script/cmake-build-debug-coverage/CMakeFiles --progress-num=1,2,3,4,5 "Built target MSD_script"
 .PHONY : CMakeFiles/MSD_script.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/MSD_script.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/awerkamp/Programming/MSD_script/cmake-build-debug-coverage/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/awerkamp/Programming/15_matthew_software_eng/MSD_script/cmake-build-debug-coverage/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/MSD_script.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/awerkamp/Programming/MSD_script/cmake-build-debug-coverage/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/awerkamp/Programming/15_matthew_software_eng/MSD_script/cmake-build-debug-coverage/CMakeFiles 0
 .PHONY : CMakeFiles/MSD_script.dir/rule
 
 # Convenience name for target.

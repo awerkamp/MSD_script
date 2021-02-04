@@ -1,4 +1,4 @@
-# Install script for directory: /Users/awerkamp/Programming/MSD_script
+# Install script for directory: /Users/awerkamp/Programming/15_matthew_software_eng/MSD_script
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/awerkamp/Programming/MSD_script/cmake-build-debug-coverage/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/awerkamp/Programming/15_matthew_software_eng/MSD_script/cmake-build-debug-coverage/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
