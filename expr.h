@@ -65,6 +65,20 @@ public:
     void pretty_print_at(std::ostream &out, enum printStatus status) override;
 };
 
+class _let : public Expr {
+public:
+    Expr *lhs;
+    Expr *rhs;
+    Expr *body;
+    _let(Expr *lhs, Expr *rhs, Expr *body);
+    bool equals(Expr *e) override;
+    int interp() override;
+    bool has_variable() override;
+    Expr* subst(std::string s, Expr* e) override;
+    void print(std::ostream &out) override;
+    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+};
+
 class Var : public Expr {
 public:
     std::string name;
@@ -76,6 +90,7 @@ public:
     void print(std::ostream &out) override;
     void pretty_print_at(std::ostream &out, enum printStatus status) override;
 };
+
 
 
 #endif //MSD_SCRIPT_EXPR_H

@@ -15,24 +15,30 @@ TEST_CASE("equals") {
     Expr* var1 = new Var("var1");
     Expr* var2 = new Var("var2");
 
+    // add
     CHECK((new Add(num1, num2))->equals(new Add(num1, num2)) == true);
     CHECK((new Add(num1, num5))->equals(new Add(num3, num3)) == false);
     CHECK((new Add(num1, num5))->equals(new Mult(num3, num3)) == false);
 
+    // num
     CHECK((num1)->equals(num1) == true);
     CHECK((num1)->equals(num2) == false);
     CHECK((num1)->equals(var1) == false);
 
-
+    // var
     CHECK((var1)->equals(var1) == true);
     CHECK((var1)->equals(var2) == false);
     CHECK((var1)->equals(num2) == false);
 
-
+    // mult
     CHECK((new Mult(num1, num2))->equals(new Mult(num1, num2)) == true);
     CHECK((new Mult(num1, num2))->equals(new Mult(num1, num3)) == false);
     CHECK((new Mult(num1, num2))->equals(new Add(num1, num3)) == false);
 
+    //_let
+    CHECK((new _let(var1, num2, new Add(num2, var1)))->equals(new _let(var1, num2, new Add(num2, var1))) == true);
+    CHECK((new _let(var1, num2, new Add(num2, var1)))->equals(new _let(var1, num3, new Add(num2, var1))) == false);
+    CHECK((new _let(var1, num2, new Add(num2, var1)))->equals(new _let(var1, num3, new Add(var1, num2))) == false);
 }
 
 TEST_CASE("Interp") {
@@ -52,9 +58,21 @@ TEST_CASE("Interp") {
     CHECK((((new Mult(num1, num2))->interp())==(num2->interp())) == true); // 2 == 2
     CHECK((((new Mult(num1, num2))->interp())==(num3->interp())) == false); // 2 == 3
 
-    //Num
+    // Num
     CHECK(((num2->interp())==(num2->interp())) == true); // 2 == 2
     CHECK(((num2->interp())==(num3->interp())) == false); // 2 == 3
+
+    // _let
+    CHECK((((_let(new Var("x"), num1, new Var("x"))).interp() == 1) == true));
+    CHECK((((_let(new Var("x"), num2, new Var("x"))).interp() == 1) == false));
+    CHECK((((_let(new Var("x"), new Add(num1, num2), new Var("x"))).interp() == 3) == true));
+    CHECK((((_let(new Var("x"), new Add(num1, num2), new Add(new Var("x"), num2))).interp() == 5) == true));
+    CHECK((((_let(new Var("x"), new Add(num1, num2), new Add(new Var("x"), new Var("x")))).interp() == 6) == true));
+    CHECK_THROWS_AS((((_let(new Num(1), new Add(num1, num2), new Add(new Var("x"), new Var("x")))).interp() == 6) == true), exception);
+    CHECK_THROWS_AS((((_let(new Var("x"), new Add(num1, num2), new Add(new Var("y"), new Var("x")))).interp() == 6) == true), exception);
+    CHECK_THROWS_AS((((_let(new Var("x"), new Add(new Var("x"), num2), new Add(new Var("x"), new Var("x")))).interp() == 6) == true), exception);
+    CHECK((((_let(new Var("x"), new Add(num1, num2), new Add(new Num(0), new Num(5)))).interp() == 5) == true));  // todo: verify this is correct
+    CHECK(((_let(new Var("x"), num1, new Var("x"))).interp() == 1) == true);
 }
 
 TEST_CASE("has_variable") {
@@ -82,6 +100,11 @@ TEST_CASE("has_variable") {
 
     // Num
     CHECK(num3->has_variable() == false); // no var
+
+    // _let
+    CHECK(((new _let(var1, num2, var1))->has_variable()) == true);
+    CHECK(((new _let(var1, num2, num3))->has_variable()) == false);
+    CHECK(((new _let(var1, var1, num2))->has_variable()) == true);
 }
 
 TEST_CASE("subst") {
@@ -103,6 +126,18 @@ TEST_CASE("subst") {
     CHECK( (new Mult(new Var("x"), new Num(7)))
     ->subst("x", new Var("y"))
     ->equals(new Mult(new Var("y"), new Num(7))) );
+
+    // _let
+    CHECK( (new _let(new Var("x"), new Num(7), new Var("y")))
+                   ->subst("y", new Var("x"))
+                   ->equals(new _let(new Var("x"), new Num(7), new Var("x"))) );
+
+    CHECK( (new _let(new Var("x"), new Num(7), new Var("x")))
+                   ->subst("y", new Var("x"))
+                   ->equals(new _let(new Var("x"), new Num(7), new Var("x"))) );
+    CHECK( (new _let(new Var("x"), new Num(7), new Var("x")))
+                   ->subst("x", new Var("z"))
+                   ->equals(new _let(new Var("x"), new Num(7), new Var("x"))) == false );
 }
 
 TEST_CASE("print") {
@@ -125,6 +160,11 @@ TEST_CASE("print") {
     CHECK(((new Mult((new Add(num1, num2)), new Add(num1, num2)))->to_string(out)) == "((1+2)*(1+2))");
     CHECK(((new Add((new Mult(num1, num2)), new Mult(num1, num2)))->to_string(out)) == "((1*2)+(1*2))");
     CHECK((new Var("x"))->to_string(out) == "x");
+
+    // _let
+    CHECK(((new _let((new Var("x")), new Add(num1, num2), num1))->to_string(out)) == "(_let x=(1+2) _in 1)");
+    CHECK(((new _let((new Var("x")), new Add(num1 , num2), new Add(new Var("x") , num2)))->to_string(out)) == "(_let x=(1+2) _in (x+2))");
+    CHECK((((new _let((new Var("x")), new Add(num1 , num2), new Add(new Var("x") , num2)))->to_string(out)) == "(_let x=(1+2) _in x+2)") == false);
 }
 
 TEST_CASE("pretty_print") {

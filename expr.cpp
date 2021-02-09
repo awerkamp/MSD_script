@@ -160,6 +160,66 @@ void Mult::pretty_print_at(std::ostream &out, enum printStatus status){
     }
 }
 
+_let::_let(Expr* lhs, Expr* rhs, Expr* body) {
+    this->lhs = lhs;
+    this->rhs = rhs;
+    this->body = body;
+}
+
+bool _let::equals(Expr *e) {
+    _let *t = dynamic_cast<_let*>(e);
+    if (t == nullptr) {
+        return false;
+    } else {
+        return (this->lhs->equals(t->lhs) && this->rhs->equals(t->rhs) && this->body->equals(t->body));
+    }
+}
+
+int _let::interp() {
+    Var *t = dynamic_cast<Var*>(this->lhs);  // Ensures first argument is of type Var
+    if (t == nullptr) {
+        throw std::runtime_error("First argument must be of type Var");
+    }
+    Var* lhs_var = dynamic_cast<Var*>(this->lhs); // Casts lhs to Var
+
+    int n = this->rhs->interp(); // evaluates rhs
+    Num* rhs_interp = new Num(n); // Sets rhs as a Num
+
+    // Substitutes any variable in the body with the rhs evaluation (interp)
+    return this->body->subst(lhs_var->name, rhs_interp)->interp();
+}
+
+bool _let::has_variable() {
+    return this->rhs->has_variable() || this->body->has_variable();
+}
+
+Expr* _let::subst(std::string s, Expr *e) {
+    return new _let(this->lhs, this->rhs->subst(s,e), this->body->subst(s,e));
+}
+
+void _let::print(std::ostream &out) {
+    out << "(_let ";
+    this->lhs->print(out);
+    out << "=";
+    this->rhs->print(out);
+    out << " _in ";
+    this->body->print(out);
+    out << ")";
+}
+
+void _let::pretty_print_at(std::ostream &out, enum printStatus status){  // todo Make Indented and on new line when let within let
+
+    out << "(_let ";
+    this->lhs->pretty_print_at(out, print_group_none);
+    out << " = ";
+    this->rhs->pretty_print_at(out, print_group_none);
+    out << " in ";
+    this->body->print(out);
+    out << ")";
+}
+
+
+
 Var::Var(std::string name) {
     this->name = name;
 }
