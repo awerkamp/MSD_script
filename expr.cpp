@@ -98,14 +98,24 @@ void Add::print(std::ostream &out) {
 
 void Add::pretty_print_at(std::ostream &out, enum printStatus status) {
 
+    _let *t = dynamic_cast<_let*>(this->lhs);
+
     if(status == print_group_add || status == print_group_add_or_mult) {
         out << "(";
-        this->lhs->pretty_print_at(out, print_group_add);
+        if (t != nullptr) {
+            this->lhs->pretty_print_at(out, print_group_let);
+        } else {
+            this->lhs->pretty_print_at(out, print_group_add);
+        }
         out << " + ";
         this->rhs->pretty_print_at(out, print_group_none);
         out << ")";
     } else {
-        this->lhs->pretty_print_at(out, print_group_add);
+        if (t != nullptr) {
+            this->lhs->pretty_print_at(out, print_group_let);
+        } else {
+            this->lhs->pretty_print_at(out, print_group_add);
+        }
         out << " + ";
         this->rhs->pretty_print_at(out, print_group_none);
     }
@@ -147,20 +157,37 @@ void Mult::print(std::ostream &out) {
 
 void Mult::pretty_print_at(std::ostream &out, enum printStatus status){
 
+    _let *t = dynamic_cast<_let*>(this->lhs);
+    _let *r = dynamic_cast<_let*>(this->rhs);
+
     if(status == print_group_add_or_mult) {
         out << "(";
-        this->lhs->pretty_print_at(out, print_group_add_or_mult);
+        if (t != nullptr) {
+            this->lhs->pretty_print_at(out, print_group_let);
+        } else {
+            this->lhs->pretty_print_at(out, print_group_add_or_mult);
+        }
         out << " * ";
         this->rhs->pretty_print_at(out, print_group_add);
         out << ")";
     } else {
-        this->lhs->pretty_print_at(out, print_group_add_or_mult);
+        if (t != nullptr) {
+            this->lhs->pretty_print_at(out, print_group_let);
+        } else {
+            this->lhs->pretty_print_at(out, print_group_add_or_mult);
+        }
         out << " * ";
-        this->rhs->pretty_print_at(out, print_group_add);
+        if (r != nullptr && status != print_group_none) {
+            // Todo: should be a condition here on whether to mark it print_group_let or not
+            // Todo: but I'm not sure of that condition
+            this->rhs->pretty_print_at(out, print_group_let);
+        } else {
+            this->rhs->pretty_print_at(out, print_group_add);
+        }
     }
 }
 
-_let::_let(Expr* lhs, Expr* rhs, Expr* body) {
+_let::_let(std::string lhs, Expr* rhs, Expr* body) {
     this->lhs = lhs;
     this->rhs = rhs;
     this->body = body;
@@ -209,16 +236,42 @@ void _let::print(std::ostream &out) {
 
 void _let::pretty_print_at(std::ostream &out, enum printStatus status){  // todo Make Indented and on new line when let within let
 
-    out << "(_let ";
-    this->lhs->pretty_print_at(out, print_group_none);
-    out << " = ";
-    this->rhs->pretty_print_at(out, print_group_none);
-    out << " in ";
-    this->body->print(out);
-    out << ")";
+    _let *r = dynamic_cast<_let*>(this->rhs);
+    _let *b = dynamic_cast<_let*>(this->body);
+
+    if (status == print_group_let) {
+        out << "(_let ";
+        this->lhs->pretty_print_at(out, print_group_none);
+        out << " = ";
+        if (r != nullptr) {
+            this->rhs->pretty_print_at(out, print_group_let);
+        } else {
+            this->rhs->pretty_print_at(out, print_group_none);
+        }
+        out << " in ";
+        if (r != nullptr) {
+            this->body->pretty_print_at(out, print_group_let);
+        } else {
+            this->body->pretty_print_at(out, print_group_none);
+        }
+        out << ")";
+    } else {
+        out << "_let ";
+        this->lhs->pretty_print_at(out, print_group_none);
+        out << " = ";
+        if (r != nullptr) {
+            this->rhs->pretty_print_at(out, print_group_let);
+        } else {
+            this->rhs->pretty_print_at(out, print_group_none);
+        }
+        out << " in ";
+        if (body != nullptr) {
+            this->rhs->pretty_print_at(out, print_group_let);
+        } else {
+            this->body->pretty_print_at(out, print_group_none);
+        }
+    }
 }
-
-
 
 Var::Var(std::string name) {
     this->name = name;

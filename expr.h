@@ -19,7 +19,8 @@ public:
     enum printStatus {
         print_group_none,
         print_group_add,
-        print_group_add_or_mult
+        print_group_add_or_mult,
+        print_group_let
     } printStatus;
     void pretty_print(std::ostream &out);
     virtual void pretty_print_at(std::ostream &out, enum printStatus status) = 0;
@@ -67,10 +68,10 @@ public:
 
 class _let : public Expr {
 public:
-    Expr *lhs;
+    std::string lhs;
     Expr *rhs;
     Expr *body;
-    _let(Expr *lhs, Expr *rhs, Expr *body);
+    _let(std::string lhs, Expr *rhs, Expr *body);
     bool equals(Expr *e) override;
     int interp() override;
     bool has_variable() override;
