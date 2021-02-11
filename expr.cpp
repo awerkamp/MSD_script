@@ -96,26 +96,42 @@ void Add::print(std::ostream &out) {
     out << ")";
 }
 
-void Add::pretty_print_at(std::ostream &out, enum printStatus status) {
+//void Add::pretty_print_at(std::ostream &out, enum printStatus status) {
+//
+//    _let *t = dynamic_cast<_let*>(this->lhs);
+//
+//    if(status == print_group_add || status == print_group_add_or_mult) {
+//        out << "(";
+//        if (t != nullptr) {
+//            this->lhs->pretty_print_at(out, print_group_let);
+//        } else {
+//            this->lhs->pretty_print_at(out, print_group_add);
+//        }
+//        out << " + ";
+//        this->rhs->pretty_print_at(out, print_group_none);
+//        out << ")";
+//    } else {
+//        if (t != nullptr) {
+//            this->lhs->pretty_print_at(out, print_group_let);
+//        } else {
+//            this->lhs->pretty_print_at(out, print_group_add);
+//        }
+//        out << " + ";
+//        this->rhs->pretty_print_at(out, print_group_none);
+//    }
+//}
 
-    _let *t = dynamic_cast<_let*>(this->lhs);
+
+void Add::pretty_print_at(std::ostream &out, enum printStatus status) {
 
     if(status == print_group_add || status == print_group_add_or_mult) {
         out << "(";
-        if (t != nullptr) {
-            this->lhs->pretty_print_at(out, print_group_let);
-        } else {
-            this->lhs->pretty_print_at(out, print_group_add);
-        }
+        this->lhs->pretty_print_at(out, print_group_add);
         out << " + ";
         this->rhs->pretty_print_at(out, print_group_none);
         out << ")";
     } else {
-        if (t != nullptr) {
-            this->lhs->pretty_print_at(out, print_group_let);
-        } else {
-            this->lhs->pretty_print_at(out, print_group_add);
-        }
+        this->lhs->pretty_print_at(out, print_group_add);
         out << " + ";
         this->rhs->pretty_print_at(out, print_group_none);
     }
@@ -155,37 +171,52 @@ void Mult::print(std::ostream &out) {
     out << ")";
 }
 
-void Mult::pretty_print_at(std::ostream &out, enum printStatus status){
+//void Mult::pretty_print_at(std::ostream &out, enum printStatus status){
+//
+//    _let *t = dynamic_cast<_let*>(this->lhs);
+//    _let *r = dynamic_cast<_let*>(this->rhs);
+//
+//    if(status == print_group_add_or_mult) {
+//        out << "(";
+//        if (t != nullptr) {
+//            this->lhs->pretty_print_at(out, print_group_let);
+//        } else {
+//            this->lhs->pretty_print_at(out, print_group_add_or_mult);
+//        }
+//        out << " * ";
+//        this->rhs->pretty_print_at(out, print_group_add);
+//        out << ")";
+//    } else {
+//        if (t != nullptr) {
+//            this->lhs->pretty_print_at(out, print_group_let);
+//        } else {
+//            this->lhs->pretty_print_at(out, print_group_add_or_mult);
+//        }
+//        out << " * ";
+//        if (r != nullptr && status != print_group_none) {
+//
+//            this->rhs->pretty_print_at(out, print_group_let);
+//        } else {
+//            this->rhs->pretty_print_at(out, print_group_add);
+//        }
+//    }
+//}
 
-    _let *t = dynamic_cast<_let*>(this->lhs);
-    _let *r = dynamic_cast<_let*>(this->rhs);
+void Mult::pretty_print_at(std::ostream &out, enum printStatus status){
 
     if(status == print_group_add_or_mult) {
         out << "(";
-        if (t != nullptr) {
-            this->lhs->pretty_print_at(out, print_group_let);
-        } else {
-            this->lhs->pretty_print_at(out, print_group_add_or_mult);
-        }
+        this->lhs->pretty_print_at(out, print_group_add_or_mult);
         out << " * ";
         this->rhs->pretty_print_at(out, print_group_add);
         out << ")";
     } else {
-        if (t != nullptr) {
-            this->lhs->pretty_print_at(out, print_group_let);
-        } else {
-            this->lhs->pretty_print_at(out, print_group_add_or_mult);
-        }
+        this->lhs->pretty_print_at(out, print_group_add_or_mult);
         out << " * ";
-        if (r != nullptr && status != print_group_none) {
-            // Todo: should be a condition here on whether to mark it print_group_let or not
-            // Todo: but I'm not sure of that condition
-            this->rhs->pretty_print_at(out, print_group_let);
-        } else {
-            this->rhs->pretty_print_at(out, print_group_add);
-        }
+        this->rhs->pretty_print_at(out, print_group_add);
     }
 }
+
 
 _let::_let(std::string lhs, Expr* rhs, Expr* body) {
     this->lhs = lhs;
@@ -198,22 +229,22 @@ bool _let::equals(Expr *e) {
     if (t == nullptr) {
         return false;
     } else {
-        return (this->lhs->equals(t->lhs) && this->rhs->equals(t->rhs) && this->body->equals(t->body));
+        return (this->lhs == (t->lhs) && this->rhs->equals(t->rhs) && this->body->equals(t->body));
     }
 }
 
 int _let::interp() {
-    Var *t = dynamic_cast<Var*>(this->lhs);  // Ensures first argument is of type Var
-    if (t == nullptr) {
-        throw std::runtime_error("First argument must be of type Var");
-    }
-    Var* lhs_var = dynamic_cast<Var*>(this->lhs); // Casts lhs to Var
+//    Var *t = dynamic_cast<Var*>(this->lhs);  // Ensures first argument is of type Var
+//    if (t == nullptr) {
+//        throw std::runtime_error("First argument must be of type Var");
+//    }
+//    Var* lhs_var = dynamic_cast<Var*>(this->lhs); // Casts lhs to Var
 
     int n = this->rhs->interp(); // evaluates rhs
     Num* rhs_interp = new Num(n); // Sets rhs as a Num
 
     // Substitutes any variable in the body with the rhs evaluation (interp)
-    return this->body->subst(lhs_var->name, rhs_interp)->interp();
+    return this->body->subst(lhs, rhs_interp)->interp();
 }
 
 bool _let::has_variable() {
@@ -221,12 +252,18 @@ bool _let::has_variable() {
 }
 
 Expr* _let::subst(std::string s, Expr *e) {
-    return new _let(this->lhs, this->rhs->subst(s,e), this->body->subst(s,e));
+
+    if (s != this->lhs) {
+        return new _let(this->lhs, this->rhs->subst(s,e), this->body->subst(s,e));
+    } else {
+        return new _let(this->lhs, this->rhs->subst(s,e), this->body);
+    }
+
 }
 
 void _let::print(std::ostream &out) {
     out << "(_let ";
-    this->lhs->print(out);
+    out << lhs;
     out << "=";
     this->rhs->print(out);
     out << " _in ";
@@ -241,7 +278,7 @@ void _let::pretty_print_at(std::ostream &out, enum printStatus status){  // todo
 
     if (status == print_group_let) {
         out << "(_let ";
-        this->lhs->pretty_print_at(out, print_group_none);
+        out << lhs;
         out << " = ";
         if (r != nullptr) {
             this->rhs->pretty_print_at(out, print_group_let);
@@ -257,7 +294,7 @@ void _let::pretty_print_at(std::ostream &out, enum printStatus status){  // todo
         out << ")";
     } else {
         out << "_let ";
-        this->lhs->pretty_print_at(out, print_group_none);
+        out << lhs;
         out << " = ";
         if (r != nullptr) {
             this->rhs->pretty_print_at(out, print_group_let);
