@@ -11,6 +11,78 @@
 
 using namespace std;
 
+Expr *Expr::parse_expr(std::istream &in) {
+        Expr *e;
+        e = parse_addend(in);
+
+        skip_whitespace(in);
+
+        int c = in.peek();
+        if (c == '+') {
+            consume(in, '+');
+            Expr* rhs = parse_expr(in);
+            return new Add(e , rhs);
+        } else {
+            return e;
+        }
+}
+
+
+Expr *Expr::parse_addend(std::istream &in) {
+    Expr::skip_whitespace(in);
+
+    int c = in.peek();
+    if ((c == '-') || isdigit(c)) {
+        return parse_num(in);
+    } else if (c == '('){
+        consume(in, '(');
+        Expr *e = parse_expr(in);
+        skip_whitespace(in);
+        c = in.get();
+        if (c != ')') {
+            throw std::runtime_error("invalid input");
+        }
+        return e;
+    } else {
+        consume(in, c);
+        throw std::runtime_error("invalid input");
+    }
+}
+
+Expr *Expr::parse_num(std::istream &in) {
+    int n = 0;
+    bool negative = false;
+    if (in.peek() == '-') {
+        negative = true;
+        consume(in, '-');
+    }
+    while (1) {
+        int c = in.peek();
+        if (isdigit(c)) {
+            consume(in, c);
+            n = n*10 + (c - '0');
+        } else
+            break;
+    }
+    if (negative)
+        n = -n;
+    return new Num(n);
+}
+
+void Expr::skip_whitespace(std::istream &in) {
+    while (1) {
+        int c = in.peek();
+        if (!isspace(c))
+            break;
+        consume(in, c);
+    }
+}
+
+void Expr::consume(std::istream &in, int expect) {
+    int c = in.get();if (c != expect)
+        throw std::runtime_error("consume mismatch");
+}
+
 std::string Expr::to_string(std::ostream &out) {
     this->print(out);
     std::stringstream ss;
@@ -18,7 +90,10 @@ std::string Expr::to_string(std::ostream &out) {
     return ss.str();
 }
 
-std::string Expr::to_string_pretty(std::ostream &out) {
+std::string Expr::to_string_pretty() {
+    std::ostream out(nullptr);
+    std::stringbuf str;
+    out.rdbuf(&str);
     this->pretty_print(out);
     std::stringstream ss;
     ss << out.rdbuf();
@@ -28,6 +103,7 @@ std::string Expr::to_string_pretty(std::ostream &out) {
 void Expr::pretty_print(std::ostream &out) {
     pretty_print_at(out, print_group_none);
 }
+
 
 Num::Num(int val) {
     this->val = val;
@@ -96,32 +172,6 @@ void Add::print(std::ostream &out) {
     out << ")";
 }
 
-//void Add::pretty_print_at(std::ostream &out, enum printStatus status) {
-//
-//    _let *t = dynamic_cast<_let*>(this->lhs);
-//
-//    if(status == print_group_add || status == print_group_add_or_mult) {
-//        out << "(";
-//        if (t != nullptr) {
-//            this->lhs->pretty_print_at(out, print_group_let);
-//        } else {
-//            this->lhs->pretty_print_at(out, print_group_add);
-//        }
-//        out << " + ";
-//        this->rhs->pretty_print_at(out, print_group_none);
-//        out << ")";
-//    } else {
-//        if (t != nullptr) {
-//            this->lhs->pretty_print_at(out, print_group_let);
-//        } else {
-//            this->lhs->pretty_print_at(out, print_group_add);
-//        }
-//        out << " + ";
-//        this->rhs->pretty_print_at(out, print_group_none);
-//    }
-//}
-
-
 void Add::pretty_print_at(std::ostream &out, enum printStatus status) {
 
     if(status == print_group_add || status == print_group_add_or_mult) {
@@ -171,36 +221,6 @@ void Mult::print(std::ostream &out) {
     out << ")";
 }
 
-//void Mult::pretty_print_at(std::ostream &out, enum printStatus status){
-//
-//    _let *t = dynamic_cast<_let*>(this->lhs);
-//    _let *r = dynamic_cast<_let*>(this->rhs);
-//
-//    if(status == print_group_add_or_mult) {
-//        out << "(";
-//        if (t != nullptr) {
-//            this->lhs->pretty_print_at(out, print_group_let);
-//        } else {
-//            this->lhs->pretty_print_at(out, print_group_add_or_mult);
-//        }
-//        out << " * ";
-//        this->rhs->pretty_print_at(out, print_group_add);
-//        out << ")";
-//    } else {
-//        if (t != nullptr) {
-//            this->lhs->pretty_print_at(out, print_group_let);
-//        } else {
-//            this->lhs->pretty_print_at(out, print_group_add_or_mult);
-//        }
-//        out << " * ";
-//        if (r != nullptr && status != print_group_none) {
-//
-//            this->rhs->pretty_print_at(out, print_group_let);
-//        } else {
-//            this->rhs->pretty_print_at(out, print_group_add);
-//        }
-//    }
-//}
 
 void Mult::pretty_print_at(std::ostream &out, enum printStatus status){
 

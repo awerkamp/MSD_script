@@ -1,6 +1,6 @@
-//
+///
 // Created by Awerkamp on 1/22/21.
-//
+///
 
 #ifndef MSD_SCRIPT_EXPR_H
 #define MSD_SCRIPT_EXPR_H
@@ -16,7 +16,7 @@ public:
     virtual bool has_variable() = 0;
     virtual Expr* subst(std::string s, Expr* e) = 0;
     virtual void print(std::ostream &out) = 0;
-    enum printStatus {
+        enum printStatus {
         print_group_none,
         print_group_add,
         print_group_add_or_mult,
@@ -25,7 +25,12 @@ public:
     void pretty_print(std::ostream &out);
     virtual void pretty_print_at(std::ostream &out, enum printStatus status) = 0;
     std::string to_string(std::ostream &out);
-    std::string to_string_pretty(std::ostream &out);
+    std::string to_string_pretty();
+    static Expr* parse_num(std::istream &in);
+    static void consume(std::istream &in, int expect);
+    static void skip_whitespace(std::istream &in);
+    static Expr* parse_addend(std::istream &in);
+    static Expr* parse_expr(std::istream &in);
 };
 
 class Num : public Expr {

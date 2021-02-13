@@ -99,6 +99,8 @@ TEST_CASE("has_variable") {
 
     // Var
     CHECK(var2->has_variable() == true); // var2
+    CHECK(num1->has_variable() == false); // var2
+
 
     // Num
     CHECK(num3->has_variable() == false); // no var
@@ -192,18 +194,18 @@ TEST_CASE("pretty_print") {
     std::stringbuf str;
     out.rdbuf(&str);
 
-    CHECK(((new Mult((new Add(num1, num2)), new Num(1)))->to_string_pretty(out)) == "(1 + 2) * 1");
-    CHECK(((new Mult((new Mult(num1, num2)), new Num(1)))->to_string_pretty(out)) == "(1 * 2) * 1");
-    CHECK(((new Mult((new Num(1)), new Mult(num1, num2)))->to_string_pretty(out)) == "1 * 1 * 2");
-    CHECK(((new Add((new Mult(num1, num2)), new Num(1)))->to_string_pretty(out)) == "1 * 2 + 1");
-    CHECK(((new Add((new Add(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "(1 + 2) + 1 * 2");
-    CHECK(((new Add((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty(out)) == "(1 + 2) + 1 + 2");
-    CHECK(((new Mult((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "(1 * 2) * 1 * 2");
-    CHECK(((new Mult((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty(out)) == "(1 + 2) * (1 + 2)");
-    CHECK(((new Add((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "1 * 2 + 1 * 2");
-    CHECK(((new Add((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty(out)) == "1 * 2 + 1 * 2");
-    CHECK(((new Add((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty(out)) == "(1 + 2) + 1 + 2");
-    CHECK((new Var("x"))->to_string_pretty(out) == "x");
+    CHECK(((new Mult((new Add(num1, num2)), new Num(1)))->to_string_pretty()) == "(1 + 2) * 1");
+    CHECK(((new Mult((new Mult(num1, num2)), new Num(1)))->to_string_pretty()) == "(1 * 2) * 1");
+    CHECK(((new Mult((new Num(1)), new Mult(num1, num2)))->to_string_pretty()) == "1 * 1 * 2");
+    CHECK(((new Add((new Mult(num1, num2)), new Num(1)))->to_string_pretty()) == "1 * 2 + 1");
+    CHECK(((new Add((new Add(num1, num2)), new Mult(num1, num2)))->to_string_pretty()) == "(1 + 2) + 1 * 2");
+    CHECK(((new Add((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty()) == "(1 + 2) + 1 + 2");
+    CHECK(((new Mult((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty()) == "(1 * 2) * 1 * 2");
+    CHECK(((new Mult((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty()) == "(1 + 2) * (1 + 2)");
+    CHECK(((new Add((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty()) == "1 * 2 + 1 * 2");
+    CHECK(((new Add((new Mult(num1, num2)), new Mult(num1, num2)))->to_string_pretty()) == "1 * 2 + 1 * 2");
+    CHECK(((new Add((new Add(num1, num2)), new Add(num1, num2)))->to_string_pretty()) == "(1 + 2) + 1 + 2");
+    CHECK((new Var("x"))->to_string_pretty() == "x");
 }
 
 std::string to_string(std::ostream &out) {

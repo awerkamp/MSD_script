@@ -1,3 +1,0 @@
-/Users/awerkamp/Programming/15_matthew_software_eng/MSD_script/cmake-build-debug-coverage/CMakeFiles/rebuild_cache.dir
-/Users/awerkamp/Programming/15_matthew_software_eng/MSD_script/cmake-build-debug-coverage/CMakeFiles/edit_cache.dir
-/Users/awerkamp/Programming/15_matthew_software_eng/MSD_script/cmake-build-debug-coverage/CMakeFiles/MSD_script.dir
