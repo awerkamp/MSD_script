@@ -37,22 +37,21 @@ void use_arguments(int argc, char **argv) {
             }
         } else if (std::string(argv[i]) == "--interp") {
             while (1) {
-                Expr* e = Expr::parse_addend(std::cin);
+                Expr* e = Expr::parse_expr(std::cin);
+                std::cout << e->interp() << "\n";
 
-                e->pretty_print(std::cout);
-                std::cout << "\n";
+                exit(0);
 
-                // skip the whitespace to see if there is a another file
-                Expr::skip_whitespace(std::cin);
-                if (std::cin.eof()) {
-                    exit(0);
-                }
             }
         } else if (std::string(argv[i]) == "--print") {
-            std::cerr << "Print has not yet been implemented" << endl;
+            Expr* e = Expr::parse_expr(std::cin);
+            e->print(std::cout);
+            exit(0);
+
         } else if (std::string(argv[i]) == "--pretty-print") {
-            std::cerr << "Pretty print has not yet been implemented" << endl;
-        }
+            Expr* e = Expr::parse_expr(std::cin);
+            e->pretty_print(std::cout);
+            exit(0);        }
         else {
             std::cerr << "Invalid Argument" << endl;
             exit(1);

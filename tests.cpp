@@ -230,3 +230,17 @@ TEST_CASE("pretty_print_at") {
     (new Add((new Add(num1, num2)), new Add(num1, num2)))->pretty_print_at(out, Expr::print_group_none);
     CHECK(to_string(out) == "(1 + 2) + 1 + 2");
 }
+
+TEST_CASE("parse_test") {
+    CHECK( Expr::parse_str("10")->equals(new Num(10))); // testing num
+//    CHECK( Expr::parse_str("feb")->equals(new Var("feb"))); // testing variable
+    Expr *ten_plus_one = new Add(new Num(10), new Num(1));
+    CHECK( Expr::parse_str("10+1")->equals(ten_plus_one)); // testing expression Add
+    Expr *five_mult_two = new Mult(new Num(5), new Num(2));
+    CHECK( Expr::parse_str("5*2")->equals(new Mult(new Num(5), new Num(2)))); // testing expression Mult
+    CHECK( Expr::parse_str(" 2 ")->equals(new Num(2))); // testing whitespace
+    // testing for parse_let (add other types later)
+    //_let x = 1 _ in x + 2
+    // CHECK( parse_str("_let x = 1 _ in x + 2 ")->equals( (new _let(new Variable("x"),
+    //new Num(1), new Add(new Variable("x"), new Num(2))));)); // testing whitespace
+}

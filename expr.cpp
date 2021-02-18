@@ -14,7 +14,6 @@ using namespace std;
 Expr *Expr::parse_expr(std::istream &in) {
         Expr *e;
         e = parse_addend(in);
-
         skip_whitespace(in);
 
         int c = in.peek();
@@ -27,10 +26,32 @@ Expr *Expr::parse_expr(std::istream &in) {
         }
 }
 
+//Expr *parse_str(std::string s) {// wrapper for testing.
+//    // transfer the string into a input the std::istream &in:
+//    std::istringstream in(s); // read the stream as a std::istringstream in(s);
+//    return Expr::parse_expr(in);
+//}
+
+Expr *Expr::parse_str(std::string s) {
+    std::istringstream in(s); // read the stream as a std::istringstream in(s);
+    return Expr::parse_expr(in);
+}
 
 Expr *Expr::parse_addend(std::istream &in) {
-    Expr::skip_whitespace(in);
+    Expr *e = parse_multicand(in);
+    skip_whitespace(in);
+    int c = in.peek();
+    if (c == '*') {
+        consume(in, '*');
+        Expr* rhs = parse_addend(in);
+        return new Mult(e, rhs);
+    } else {
+        return e;
+    }
+}
 
+Expr *Expr::parse_multicand(std::istream &in) {
+    skip_whitespace(in);
     int c = in.peek();
     if ((c == '-') || isdigit(c)) {
         return parse_num(in);
@@ -40,7 +61,7 @@ Expr *Expr::parse_addend(std::istream &in) {
         skip_whitespace(in);
         c = in.get();
         if (c != ')') {
-            throw std::runtime_error("invalid input");
+            throw std::runtime_error("missing close parenthesis");
         }
         return e;
     } else {
@@ -103,6 +124,8 @@ std::string Expr::to_string_pretty() {
 void Expr::pretty_print(std::ostream &out) {
     pretty_print_at(out, print_group_none);
 }
+
+
 
 
 Num::Num(int val) {

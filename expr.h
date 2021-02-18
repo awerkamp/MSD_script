@@ -29,8 +29,10 @@ public:
     static Expr* parse_num(std::istream &in);
     static void consume(std::istream &in, int expect);
     static void skip_whitespace(std::istream &in);
+    static Expr* parse_multicand(std::istream &in);
     static Expr* parse_addend(std::istream &in);
     static Expr* parse_expr(std::istream &in);
+    static Expr *parse_str(std::string s);
 };
 
 class Num : public Expr {
