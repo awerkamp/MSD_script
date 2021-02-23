@@ -235,10 +235,18 @@ TEST_CASE("parse_test") {
     CHECK( Expr::parse_str("10")->equals(new Num(10))); // testing num
 //    CHECK( Expr::parse_str("feb")->equals(new Var("feb"))); // testing variable
     Expr *ten_plus_one = new Add(new Num(10), new Num(1));
+    Expr *neg_ten_plus_one = new Add(new Num(-10), new Num(1));
     CHECK( Expr::parse_str("10+1")->equals(ten_plus_one)); // testing expression Add
     Expr *five_mult_two = new Mult(new Num(5), new Num(2));
     CHECK( Expr::parse_str("5*2")->equals(new Mult(new Num(5), new Num(2)))); // testing expression Mult
     CHECK( Expr::parse_str(" 2 ")->equals(new Num(2))); // testing whitespace
+    CHECK( Expr::parse_str("(10+1)")->equals(ten_plus_one)); // testing expression Add
+    CHECK_THROWS_AS( Expr::parse_str("(10+1")->equals(ten_plus_one), exception); // testing expression Add
+    CHECK_THROWS_AS( Expr::parse_str("(d+1)")->equals(ten_plus_one), exception); // testing expression Add
+    CHECK( Expr::parse_str("(-10+1)")->equals(neg_ten_plus_one)); // testing expression Add
+
+
+
     // testing for parse_let (add other types later)
     //_let x = 1 _ in x + 2
     // CHECK( parse_str("_let x = 1 _ in x + 2 ")->equals( (new _let(new Variable("x"),

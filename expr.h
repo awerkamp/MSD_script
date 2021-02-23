@@ -33,6 +33,8 @@ public:
     static Expr* parse_addend(std::istream &in);
     static Expr* parse_expr(std::istream &in);
     static Expr *parse_str(std::string s);
+    static Expr* parse_let(std::istream &in);
+    static Expr* parse_var(std::istream &in);
 };
 
 class Num : public Expr {

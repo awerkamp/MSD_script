@@ -36,13 +36,13 @@ void use_arguments(int argc, char **argv) {
                 exit(1);
             }
         } else if (std::string(argv[i]) == "--interp") {
-            while (1) {
-                Expr* e = Expr::parse_expr(std::cin);
-                std::cout << e->interp() << "\n";
 
+                Expr* e = Expr::parse_expr(std::cin);
+
+                std::cout << e->interp() << "\n";
                 exit(0);
 
-            }
+
         } else if (std::string(argv[i]) == "--print") {
             Expr* e = Expr::parse_expr(std::cin);
             e->print(std::cout);

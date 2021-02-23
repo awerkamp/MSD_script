@@ -50,11 +50,31 @@ Expr *Expr::parse_addend(std::istream &in) {
     }
 }
 
+Expr *Expr::parse_var(std::istream &in) {
+
+    string var;
+
+    while (1) {
+        int c = in.peek();
+        if (isalpha(c)) {
+//            consume(in, c);
+            var += (char)in.get();
+        } else
+            break;
+    }
+    return new Var(var);
+}
+
+
 Expr *Expr::parse_multicand(std::istream &in) {
     skip_whitespace(in);
     int c = in.peek();
     if ((c == '-') || isdigit(c)) {
         return parse_num(in);
+    } else if (c == '_') {
+        return parse_let(in);
+    } else if (isalpha(c)) {
+      return parse_var(in);
     } else if (c == '('){
         consume(in, '(');
         Expr *e = parse_expr(in);
@@ -64,10 +84,54 @@ Expr *Expr::parse_multicand(std::istream &in) {
             throw std::runtime_error("missing close parenthesis");
         }
         return e;
-    } else {
-        consume(in, c);
-        throw std::runtime_error("invalid input");
     }
+
+    else {
+//        consume(in, c);
+        cout << "This is the error" << (char)c << endl;
+        throw std::runtime_error("invalid input 2 ");
+    }
+}
+
+static string* check_var(std::istream &in, string &var) {
+    if (in.peek() >= 65 && in.peek() <= 90 || in.peek() >= 97 && in.peek() <= 122 ) {
+        var = (char)in.get();
+        return &var;
+    } else {
+        throw std::runtime_error("not a variable");
+    }
+}
+
+Expr *Expr::parse_let(std::istream &in) {
+    consume(in, '_');
+    consume(in, 'l');
+    consume(in, 'e');
+    consume(in, 't');
+    skip_whitespace(in);
+
+    string temp;
+    string* var = check_var(in, temp);
+
+    skip_whitespace(in);
+    consume(in, '=');
+    skip_whitespace(in);
+
+    Expr* expr1 = parse_expr(in);
+
+
+    skip_whitespace(in);
+    consume(in, '_');
+    consume(in, 'i');
+    consume(in, 'n');
+    skip_whitespace(in);
+
+    Expr* expr2 = parse_expr(in);
+
+
+    cout << var[0] << endl;
+
+
+    return new _let(var[0], expr1, expr2);
 }
 
 Expr *Expr::parse_num(std::istream &in) {
@@ -100,8 +164,11 @@ void Expr::skip_whitespace(std::istream &in) {
 }
 
 void Expr::consume(std::istream &in, int expect) {
-    int c = in.get();if (c != expect)
+    int c = in.get();
+    if (c != expect) {
+        cout << "this is what trying to consume" << (char)c << endl;
         throw std::runtime_error("consume mismatch");
+    }
 }
 
 std::string Expr::to_string(std::ostream &out) {
