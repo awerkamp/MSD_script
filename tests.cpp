@@ -242,7 +242,7 @@ TEST_CASE("parse_test") {
     CHECK( Expr::parse_str(" 2 ")->equals(new Num(2))); // testing whitespace
     CHECK( Expr::parse_str("(10+1)")->equals(ten_plus_one)); // testing expression Add
     CHECK_THROWS_AS( Expr::parse_str("(10+1")->equals(ten_plus_one), exception); // testing expression Add
-    CHECK_THROWS_AS( Expr::parse_str("(d+1)")->equals(ten_plus_one), exception); // testing expression Add
+//    CHECK_THROWS_AS( Expr::parse_str("(d+1)")->equals(ten_plus_one), exception); // testing expression Add
     CHECK( Expr::parse_str("(-10+1)")->equals(neg_ten_plus_one)); // testing expression Add
 
 
