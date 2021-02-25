@@ -52,19 +52,19 @@ TEST_CASE("Interp") {
     Expr* num3 = new NumExpr(3);
 
     // Add
-    CHECK((((new AddExpr(num1, num2))->interp()) == (num3->interp())) == true); // 3 == 3
-    CHECK((((new AddExpr(num1, num2))->interp()) == (num1->interp())) == false); // 3 == 1
+    CHECK((((new AddExpr(num1, num2))->interp())->equals(num3->interp())) == true); // 3 == 3
+    CHECK((((new AddExpr(num1, num2))->interp())->equals(num1->interp())) == false); // 3 == 1
 
     // Variables
     CHECK_THROWS_WITH((new VarExpr("x"))->interp(), "There is no value for this expression" );
 
     // Multiply
-    CHECK((((new MultExpr(num1, num2))->interp()) == (num2->interp())) == true); // 2 == 2
-    CHECK((((new MultExpr(num1, num2))->interp()) == (num3->interp())) == false); // 2 == 3
+    CHECK((((new MultExpr(num1, num2))->interp())->equals(num2->interp())) == true); // 2 == 2
+    CHECK((((new MultExpr(num1, num2))->interp())->equals(num3->interp())) == false); // 2 == 3
 
     // Num
-    CHECK(((num2->interp())==(num2->interp())) == true); // 2 == 2
-    CHECK(((num2->interp())==(num3->interp())) == false); // 2 == 3
+    CHECK(((num2->interp())->equals(num2->interp())) == true); // 2 == 2
+    CHECK(((num2->interp())->equals(num3->interp())) == false); // 2 == 3
 
     // _let
     CHECK(((new LetExpr("x", num1, new VarExpr("x")))->interp()->equals(new NumVal(1))) == true);
