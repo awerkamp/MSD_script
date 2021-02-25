@@ -11,5 +11,6 @@ add_executable(MSD_script
         tests.cpp
         use_arguments.cpp
         expr.cpp
+        val.cpp
         )
 

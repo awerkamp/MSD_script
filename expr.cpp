@@ -3,11 +3,12 @@
 //
 
 #include "expr.h"
-
+#include "val.h"
 #include<string>
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+
 
 using namespace std;
 
@@ -20,7 +21,7 @@ Expr *Expr::parse_expr(std::istream &in) {
         if (c == '+') {
             consume(in, '+');
             Expr* rhs = parse_expr(in);
-            return new Add(e , rhs);
+            return new AddExpr(e , rhs);
         } else {
             return e;
         }
@@ -44,7 +45,7 @@ Expr *Expr::parse_addend(std::istream &in) {
     if (c == '*') {
         consume(in, '*');
         Expr* rhs = parse_addend(in);
-        return new Mult(e, rhs);
+        return new MultExpr(e, rhs);
     } else {
         return e;
     }
@@ -62,7 +63,7 @@ Expr *Expr::parse_var(std::istream &in) {
         } else
             break;
     }
-    return new Var(var);
+    return new VarExpr(var);
 }
 
 
@@ -131,7 +132,7 @@ Expr *Expr::parse_let(std::istream &in) {
     cout << var[0] << endl;
 
 
-    return new _let(var[0], expr1, expr2);
+    return new LetExpr(var[0], expr1, expr2);
 }
 
 Expr *Expr::parse_num(std::istream &in) {
@@ -151,7 +152,7 @@ Expr *Expr::parse_num(std::istream &in) {
     }
     if (negative)
         n = -n;
-    return new Num(n);
+    return new NumExpr(n);
 }
 
 void Expr::skip_whitespace(std::istream &in) {
@@ -195,46 +196,47 @@ void Expr::pretty_print(std::ostream &out) {
 
 
 
-Num::Num(int val) {
-    this->val = val;
+NumExpr::NumExpr(int val) {
+//    val->Expr
+    this->rep = val;
 }
 
-bool Num::equals(Expr *e) {
-    Num *t = dynamic_cast<Num*>(e);
+bool NumExpr::equals(Expr *e) {
+    NumExpr *t = dynamic_cast<NumExpr*>(e);
     if (t == nullptr) {
         return false;
     } else {
-        return (this->val == t->val);
+        return (this->rep == t->rep);
     }
 }
 
- int Num::interp() {
-    return this->val;
+ Val* NumExpr::interp() {
+    return new NumVal(this->rep);
 }
 
-bool Num::has_variable() {
+bool NumExpr::has_variable() {
     return false;
 }
 
-Expr* Num::subst(std::string s, Expr *e) {
+Expr* NumExpr::subst(std::string s, Expr *e) {
     return this;
 }
 
-void Num::print(std::ostream &out) {
-    out << this->val;
+void NumExpr::print(std::ostream &out) {
+    out << this->rep;
 }
 
-void Num::pretty_print_at(std::ostream &out, enum printStatus status) {
-    out << this->val;
+void NumExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
+    out << this->rep;
 }
 
-Add::Add(Expr *lhs, Expr *rhs) {
+AddExpr::AddExpr(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
     this->rhs = rhs;
 }
 
-bool Add::equals(Expr *e) {
-    Add *t = dynamic_cast<Add*>(e);
+bool AddExpr::equals(Expr *e) {
+    AddExpr *t = dynamic_cast<AddExpr*>(e);
     if (t == nullptr) {
         return false;
     } else {
@@ -242,19 +244,19 @@ bool Add::equals(Expr *e) {
     }
 }
 
-int Add::interp() {
-    return this->lhs->interp() + this->rhs->interp();
+Val* AddExpr::interp() {
+    return this->lhs->interp()->add_to(this->rhs->interp());
 }
 
-bool Add::has_variable() {
+bool AddExpr::has_variable() {
     return (this->lhs->has_variable() || this->rhs->has_variable());
 }
 
-Expr* Add::subst(std::string s, Expr *e) {
-    return new Add(this->lhs->subst(s,e),this->rhs->subst(s,e));
+Expr* AddExpr::subst(std::string s, Expr *e) {
+    return new AddExpr(this->lhs->subst(s, e), this->rhs->subst(s, e));
 }
 
-void Add::print(std::ostream &out) {
+void AddExpr::print(std::ostream &out) {
     out << "(";
     this->lhs->print(out);
     out << "+";
@@ -262,7 +264,7 @@ void Add::print(std::ostream &out) {
     out << ")";
 }
 
-void Add::pretty_print_at(std::ostream &out, enum printStatus status) {
+void AddExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
 
     if(status == print_group_add || status == print_group_add_or_mult) {
         out << "(";
@@ -277,13 +279,13 @@ void Add::pretty_print_at(std::ostream &out, enum printStatus status) {
     }
 }
 
-Mult::Mult(Expr *lhs, Expr *rhs) {
+MultExpr::MultExpr(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
     this->rhs = rhs;
 }
 
-bool Mult::equals(Expr *e) {
-    Mult *t = dynamic_cast<Mult*>(e);
+bool MultExpr::equals(Expr *e) {
+    MultExpr *t = dynamic_cast<MultExpr*>(e);
     if (t == nullptr) {
         return false;
     } else {
@@ -291,19 +293,19 @@ bool Mult::equals(Expr *e) {
     }
 }
 
-int Mult::interp() {
-    return this->lhs->interp() * this->rhs->interp();
+Val* MultExpr::interp() {
+    return this->lhs->interp()->mult_by(this->rhs->interp());
 }
 
-bool Mult::has_variable() {
+bool MultExpr::has_variable() {
     return (this->lhs->has_variable() || this->rhs->has_variable());
 }
 
-Expr* Mult::subst(std::string s, Expr *e) {
-    return new Mult(this->lhs->subst(s,e), this->rhs->subst(s,e));
+Expr* MultExpr::subst(std::string s, Expr *e) {
+    return new MultExpr(this->lhs->subst(s, e), this->rhs->subst(s, e));
 }
 
-void Mult::print(std::ostream &out) {
+void MultExpr::print(std::ostream &out) {
     out << "(";
     this->lhs->print(out);
     out << "*";
@@ -312,7 +314,7 @@ void Mult::print(std::ostream &out) {
 }
 
 
-void Mult::pretty_print_at(std::ostream &out, enum printStatus status){
+void MultExpr::pretty_print_at(std::ostream &out, enum printStatus status){
 
     if(status == print_group_add_or_mult) {
         out << "(";
@@ -328,14 +330,14 @@ void Mult::pretty_print_at(std::ostream &out, enum printStatus status){
 }
 
 
-_let::_let(std::string lhs, Expr* rhs, Expr* body) {
+LetExpr::LetExpr(std::string lhs, Expr* rhs, Expr* body) {
     this->lhs = lhs;
     this->rhs = rhs;
     this->body = body;
 }
 
-bool _let::equals(Expr *e) {
-    _let *t = dynamic_cast<_let*>(e);
+bool LetExpr::equals(Expr *e) {
+    LetExpr *t = dynamic_cast<LetExpr*>(e);
     if (t == nullptr) {
         return false;
     } else {
@@ -343,35 +345,35 @@ bool _let::equals(Expr *e) {
     }
 }
 
-int _let::interp() {
+Val* LetExpr::interp() {
 //    Var *t = dynamic_cast<Var*>(this->lhs);  // Ensures first argument is of type Var
 //    if (t == nullptr) {
 //        throw std::runtime_error("First argument must be of type Var");
 //    }
 //    Var* lhs_var = dynamic_cast<Var*>(this->lhs); // Casts lhs to Var
 
-    int n = this->rhs->interp(); // evaluates rhs
-    Num* rhs_interp = new Num(n); // Sets rhs as a Num
+    Val* rhs_val = this->rhs->interp(); // evaluates rhs
+//    NumExpr* rhs_interp = new NumExpr(n); // Sets rhs as a Num
 
     // Substitutes any variable in the body with the rhs evaluation (interp)
-    return this->body->subst(lhs, rhs_interp)->interp();
+    return this->body->subst(lhs, rhs_val->to_expr())->interp();
 }
 
-bool _let::has_variable() {
+bool LetExpr::has_variable() {
     return this->rhs->has_variable() || this->body->has_variable();
 }
 
-Expr* _let::subst(std::string s, Expr *e) {
+Expr* LetExpr::subst(std::string s, Expr *e) {
 
     if (s != this->lhs) {
-        return new _let(this->lhs, this->rhs->subst(s,e), this->body->subst(s,e));
+        return new LetExpr(this->lhs, this->rhs->subst(s, e), this->body->subst(s, e));
     } else {
-        return new _let(this->lhs, this->rhs->subst(s,e), this->body);
+        return new LetExpr(this->lhs, this->rhs->subst(s, e), this->body);
     }
 
 }
 
-void _let::print(std::ostream &out) {
+void LetExpr::print(std::ostream &out) {
     out << "(_let ";
     out << lhs;
     out << "=";
@@ -381,10 +383,10 @@ void _let::print(std::ostream &out) {
     out << ")";
 }
 
-void _let::pretty_print_at(std::ostream &out, enum printStatus status){  // todo Make Indented and on new line when let within let
+void LetExpr::pretty_print_at(std::ostream &out, enum printStatus status){  // todo Make Indented and on new line when let within let
 
-    _let *r = dynamic_cast<_let*>(this->rhs);
-    _let *b = dynamic_cast<_let*>(this->body);
+    auto *r = dynamic_cast<LetExpr*>(this->rhs);
+    auto *b = dynamic_cast<LetExpr*>(this->body);
 
     if (status == print_group_let) {
         out << "(_let ";
@@ -420,12 +422,12 @@ void _let::pretty_print_at(std::ostream &out, enum printStatus status){  // todo
     }
 }
 
-Var::Var(std::string name) {
+VarExpr::VarExpr(std::string name) {
     this->name = name;
 }
 
-bool Var::equals(Expr *e) {
-    Var *t = dynamic_cast<Var*>(e);
+bool VarExpr::equals(Expr *e) {
+    VarExpr *t = dynamic_cast<VarExpr*>(e);
     if (t == nullptr) {
         return false;
     } else {
@@ -433,15 +435,15 @@ bool Var::equals(Expr *e) {
     }
 }
 
-int Var::interp() {
+Val* VarExpr::interp() {
     throw std::runtime_error("There is no value for this expression");
 }
 
-bool Var::has_variable() {
+bool VarExpr::has_variable() {
     return true;
 }
 
-Expr* Var::subst(std::string s, Expr *e) {
+Expr* VarExpr::subst(std::string s, Expr *e) {
     if (this->name == s) {
         return e;
     } else {
@@ -449,10 +451,11 @@ Expr* Var::subst(std::string s, Expr *e) {
     }
 }
 
-void Var::print(std::ostream &out) {
+void VarExpr::print(std::ostream &out) {
     out << this->name;
 }
 
-void Var::pretty_print_at(std::ostream &out, enum printStatus status){
+void VarExpr::pretty_print_at(std::ostream &out, enum printStatus status){
     out << this->name;
 }
+
