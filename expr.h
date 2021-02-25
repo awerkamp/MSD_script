@@ -82,7 +82,6 @@ public:
 class LetExpr : public Expr {
 public:
     std::string lhs;
-
     Expr *rhs;
     Expr *body;
     LetExpr(std::string lhs, Expr *rhs, Expr *body);

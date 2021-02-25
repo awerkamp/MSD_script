@@ -23,7 +23,7 @@ class NumVal: public Val {
 public:
     int val;
     explicit NumVal(int val) {
-        this->val = val;
+        this->val =  val;
     }
     Expr* to_expr() override;
     Val* add_to(Val* other_val) override;
