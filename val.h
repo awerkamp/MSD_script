@@ -31,8 +31,8 @@ public:
 
 class BoolVal: public Val {
 public:
-    std::string val;
-    explicit BoolVal(std::string val) {
+    bool val;
+    explicit BoolVal(bool val) {
         this->val = val;
     }
     Expr* to_expr() override;

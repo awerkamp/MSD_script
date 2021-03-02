@@ -35,12 +35,15 @@ public:
     static void skip_whitespace(std::istream &in);
     static Expr* parse_multicand(std::istream &in);
     static Expr* parse_addend(std::istream &in);
-    static Expr* parse_expr(std::istream &in);
     static Expr* parse_comparg(std::istream &in);
+    static Expr* parse_expr(std::istream &in);
 
     static Expr *parse_str(std::string s);
     static Expr* parse_let(std::istream &in);
+    static Expr* parse_true(std::istream &in);
+    static Expr* parse_false(std::istream &in);
     static Expr* parse_var(std::istream &in);
+    static Expr* parse_if(std::istream &in);
 };
 
 
@@ -58,8 +61,8 @@ public:
 
 class BoolExpr : public Expr {
 public:
-    std::string rep;
-    explicit BoolExpr(string val);
+    bool rep;
+    explicit BoolExpr(bool val);
     bool equals(Expr *e) override;
     Val* interp() override;
     bool has_variable() override;

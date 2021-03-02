@@ -52,15 +52,18 @@ TEST_CASE("equals") {
     CHECK((new LetExpr("x", num2, new AddExpr(num2, var1)))->equals(new LetExpr("x", num3, new AddExpr(var1, num2))) == false);
 
     //BoolVal
-    CHECK((new BoolVal("_true"))->equals(new BoolVal("_true")) == true);
-    CHECK((new BoolVal("true"))->equals(new BoolVal("_true")) == false);
-    CHECK((new BoolVal("_true"))->equals(new BoolVal("_false")) == false);
-    CHECK((new NumVal(21))->equals(new BoolVal("_false")) == false);
+    CHECK((new BoolVal(true))->equals(new BoolVal(true)) == true);
+    CHECK((new BoolVal(true))->equals(new BoolVal(true)) == true);
+    CHECK((new BoolVal(true))->equals(new BoolVal(false)) == false);
+    CHECK((new NumVal(21))->equals(new BoolVal(false)) == false);
+    CHECK((new BoolVal(true))->equals(new NumVal(21)) == false);
+
 
     //BoolExpr
-    CHECK((new BoolExpr("_true"))->equals(new BoolExpr("_true")) == true);
-    CHECK((new BoolExpr("_true"))->equals(new BoolExpr("_false")) == false);
-//    CHECK((new BoolExpr("_true"))->equals(new NumVal(21)) == false);
+    CHECK((new BoolExpr(true))->equals(new BoolExpr(true)) == true);
+    CHECK((new BoolExpr(true))->equals(new BoolExpr(false)) == false);
+
+//    CHECK((new BoolExpr(true))->equals(new NumVal(21)) == false);
 
 
     // eqExp
@@ -69,14 +72,16 @@ TEST_CASE("equals") {
     CHECK(eqExp->equals(new EqExpr(num1, num3)) == false);
 
     // ifExp
-    Expr* ifExp = new IfExpr(new BoolExpr("_true"), num1, num2);
-    CHECK(ifExp->equals(new IfExpr(new BoolExpr("_true"), num1, num2)) == true);
+    Expr* ifExp = new IfExpr(new BoolExpr(true), num1, num2);
+    CHECK(ifExp->equals(new IfExpr(new BoolExpr(true), num1, num2)) == true);
 
-    Expr* ifExp2 = new IfExpr(new BoolExpr("_true"), num1, num2);
-    CHECK(eqExp->equals(new IfExpr(new BoolExpr("_true"), num1, num2)) == false);
+    Expr* ifExp2 = new IfExpr(new BoolExpr(true), num1, num2);
+    CHECK(eqExp->equals(new IfExpr(new BoolExpr(true), num1, num2)) == false);
 
-    Expr* ifExp3 = new IfExpr(new BoolExpr("_true"), num1, num2);
-    CHECK(ifExp3->equals(new IfExpr(new BoolExpr("_true"), num1, num3)) == false);
+    Expr* ifExp3 = new IfExpr(new BoolExpr(true), num1, num2);
+    CHECK(ifExp3->equals(new IfExpr(new BoolExpr(true), num1, num3)) == false);
+
+    CHECK_THROWS_AS(new IfExpr(new NumExpr(1), new NumExpr(2), new NumExpr(3)), exception);
 }
 
 TEST_CASE("Interp") {
@@ -118,14 +123,14 @@ TEST_CASE("Interp") {
     CHECK(eqExp2->interp()->equals(new BoolVal("_true")) == true);
 
     // ifExp
-    Expr* ifExp = new IfExpr(new BoolExpr("_true"), num1, num2);
+    Expr* ifExp = new IfExpr(new BoolExpr(true), num1, num2);
     CHECK(ifExp->interp()->equals(new NumVal(1)) == true);
 
-    Expr* ifExp2 = new IfExpr(new BoolExpr("_false"), num1, num2);
+    Expr* ifExp2 = new IfExpr(new BoolExpr(false), num1, num2);
     CHECK(ifExp2->interp()->equals(new NumVal(2)) == true);
 
     // BoolExpr
-    Expr* boolExpr = new BoolExpr("_true");
+    Expr* boolExpr = new BoolExpr(true);
     CHECK(boolExpr->interp()->equals(new BoolVal("_true")));
 }
 
@@ -164,7 +169,7 @@ TEST_CASE("has_variable") {
     CHECK(((new LetExpr("x", var1, num2))->has_variable()) == true);
 
     // boolExpr
-    auto* trueBoolExpr = new BoolExpr("_true");
+    auto* trueBoolExpr = new BoolExpr(true);
     CHECK(trueBoolExpr->has_variable() == false);
 
     // EqExpr
@@ -176,10 +181,10 @@ TEST_CASE("has_variable") {
 //    CHECK(eqExp2->interp()->equals(new BoolVal("_true")) == true);
 
     // ifExp
-    Expr* ifExp = new IfExpr(new BoolExpr("_true"), num1, num2);
+    Expr* ifExp = new IfExpr(new BoolExpr(true), num1, num2);
     CHECK(ifExp->has_variable() == false);
 
-    Expr* ifExp2 = new IfExpr(new BoolExpr("_false"), var1, num2);
+    Expr* ifExp2 = new IfExpr(new BoolExpr(false), var1, num2);
     CHECK(ifExp2->has_variable() == true);
 }
 
@@ -230,7 +235,7 @@ TEST_CASE("subst") {
                                         new AddExpr(new VarExpr("x"), new NumExpr(2)))) );
 
     // BoolExpr
-    auto* trueBoolExpr = new BoolExpr("_true");
+    auto* trueBoolExpr = new BoolExpr(true);
     CHECK((trueBoolExpr)
                   ->subst("x", new VarExpr("z"))
                   ->equals(trueBoolExpr) == true);
@@ -245,10 +250,10 @@ TEST_CASE("subst") {
 //    CHECK(eqExp2->has_variable() == true);
 
     // ifExp
-    Expr* ifExp = new IfExpr(new BoolExpr("_true"), new NumExpr(1), new NumExpr(2));
+    Expr* ifExp = new IfExpr(new BoolExpr(true), new NumExpr(1), new NumExpr(2));
     CHECK(ifExp->subst("x", new VarExpr("z"))->equals(ifExp) == true);
 
-    Expr* ifExp2 = new IfExpr(new BoolExpr("_true"), new VarExpr("x"), new NumExpr(2));
+    Expr* ifExp2 = new IfExpr(new BoolExpr(true), new VarExpr("x"), new NumExpr(2));
     CHECK(ifExp2->subst("x", new NumExpr(1))->equals(ifExp) == true);
 }
 
@@ -279,9 +284,11 @@ TEST_CASE("print") {
     CHECK((((new LetExpr("x", new AddExpr(num1 , num2), new AddExpr(new VarExpr("x") , num2)))->to_string(out)) == "(_let x=(1+2) _in x+2)") == false);
 
     //BoolExpr
-    auto* trueBoolExpr = new BoolExpr("_true");
-    CHECK((((trueBoolExpr)->to_string(out)) == "_true") == true);
+    auto* trueBoolExpr = new BoolExpr(true);
+    CHECK(((trueBoolExpr)->to_string(out)) == "_true");
 
+    auto* ifExpr = new IfExpr(new BoolExpr(true), new NumExpr(3), new NumExpr(4));
+    CHECK(((ifExpr)->to_string(out)) == "(_if _true _then 3 _else 4)");
 }
 
 TEST_CASE("pretty_print") {
@@ -307,8 +314,14 @@ TEST_CASE("pretty_print") {
     CHECK((new VarExpr("x"))->to_string_pretty() == "x");
 
     // BoolExpr
-    auto* trueBoolExpr = new BoolExpr("_true");
-    CHECK((((trueBoolExpr)->to_string_pretty()) == "_true") == true);
+    auto* trueBoolExpr = new BoolExpr(true);
+    CHECK(((trueBoolExpr)->to_string_pretty()) == "_true");
+    auto* trueBoolExpr2 = new BoolExpr(false);
+    CHECK(((trueBoolExpr2)->to_string_pretty()) == "_false");
+
+    // if Expr
+    auto* ifExpr = new IfExpr(new BoolExpr(true), new NumExpr(3), new NumExpr(4));
+    CHECK(((ifExpr)->to_string_pretty()) == "(_if _true _then 3 _else 4)");
 }
 
 std::string to_string(std::ostream &out) {
@@ -332,6 +345,9 @@ TEST_CASE("pretty_print_at") {
     out.clear();
     (new AddExpr((new AddExpr(num1, num2)), new AddExpr(num1, num2)))->pretty_print_at(out, Expr::print_group_none);
     CHECK(to_string(out) == "(1 + 2) + 1 + 2");
+
+    CHECK((((new LetExpr("x", new AddExpr(num1 , num2), new AddExpr(new VarExpr("x") , num2)))->to_string_pretty()) == "(_let x=(1+2) _in x+2)") == false);
+
 }
 
 TEST_CASE("parse_test") {
@@ -359,8 +375,8 @@ TEST_CASE("parse_test") {
 
 TEST_CASE("To Expr") {
 
-    auto* trueBoolExpr = new BoolVal("_true");
-    CHECK(trueBoolExpr->to_expr()->equals(new BoolExpr("_true")));
-    auto* trueBoolExpr2 = new BoolVal("_false");
-    CHECK(trueBoolExpr2->to_expr()->equals(new BoolExpr("_true")) == false);
+    auto* trueBoolExpr = new BoolVal(true);
+    CHECK(trueBoolExpr->to_expr()->equals(new BoolExpr(true)));
+    auto* trueBoolExpr2 = new BoolVal(false);
+    CHECK(trueBoolExpr2->to_expr()->equals(new BoolExpr(true)) == false);
 }

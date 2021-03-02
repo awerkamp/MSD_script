@@ -8,6 +8,7 @@
 #define CATCH_CONFIG_RUNNER 
 #include "catch.hpp"
 #include "expr.h"
+#include "val.h"
 
 using namespace std;
 
@@ -37,19 +38,21 @@ void use_arguments(int argc, char **argv) {
             }
         } else if (std::string(argv[i]) == "--interp") {
 
-                Expr* e = Expr::parse_expr(std::cin);
+                Expr* e = Expr::parse_comparg(std::cin);
+                Val* v = e->interp();
+                e = v->to_expr();
 
-                std::cout << e->interp() << "\n";
+                std::cout << e->to_string(cout) << "\n";
                 exit(0);
 
 
         } else if (std::string(argv[i]) == "--print") {
-            Expr* e = Expr::parse_expr(std::cin);
+            Expr* e = Expr::parse_comparg(std::cin);
             e->print(std::cout);
             exit(0);
 
         } else if (std::string(argv[i]) == "--pretty-print") {
-            Expr* e = Expr::parse_expr(std::cin);
+            Expr* e = Expr::parse_comparg(std::cin);
             e->pretty_print(std::cout);
             exit(0);        }
         else {

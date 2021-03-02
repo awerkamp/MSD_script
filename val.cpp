@@ -11,13 +11,13 @@ Expr* NumVal::to_expr() {
 }
 
 Val *NumVal::add_to(Val* other_val) {
-    NumVal* other_num = dynamic_cast<NumVal*>(other_val);
+    auto* other_num = dynamic_cast<NumVal*>(other_val);
     if (other_num == NULL) throw std::runtime_error("add of non-number");
     return new NumVal(val + other_num->val); // todo: not sure if this is right https://www.youtube.com/watch?v=Go5LJu-X_F0&list=PLbdXd8eufjyUWQw3Mqb3SNQEkdjd_S_rB&index=6
 }
 
 Val *NumVal::mult_by(Val* other_val) {
-    NumVal* other_num = dynamic_cast<NumVal*>(other_val);
+    auto* other_num = dynamic_cast<NumVal*>(other_val);
     if (other_num == NULL) throw std::runtime_error("multiply of non-number");
     return new NumVal(val * other_num->val);
 }
@@ -52,3 +52,4 @@ bool BoolVal::equals(Val *e) {
         return this->val == t->val;
     }
 }
+

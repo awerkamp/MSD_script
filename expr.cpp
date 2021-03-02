@@ -51,7 +51,7 @@ Expr *Expr::parse_comparg(std::istream &in) {
 
 Expr *Expr::parse_str(std::string s) {
     std::istringstream in(s); // read the stream as a std::istringstream in(s);
-    return Expr::parse_expr(in);
+    return Expr::parse_comparg(in);
 }
 
 Expr *Expr::parse_addend(std::istream &in) {
@@ -86,16 +86,28 @@ Expr *Expr::parse_var(std::istream &in) {
 Expr *Expr::parse_multicand(std::istream &in) {
     skip_whitespace(in);
     int c = in.peek();
+
     if ((c == '-') || isdigit(c)) {
         return parse_num(in);
     } else if (c == '_') {
-
-        return parse_let(in);
+        consume(in, '_');
+        c = in.peek();
+        if (c == 'i'){
+            return parse_if(in);
+        } else if (c == 't') {
+            return parse_true(in);
+        } else if (c == 'f') {
+            return parse_false(in);
+        } else if (c == 'l') {
+            return parse_let(in);
+        } else {
+            throw runtime_error("Invalid input after underscore _ ");
+        }
     } else if (isalpha(c)) {
       return parse_var(in);
     } else if (c == '('){
         consume(in, '(');
-        Expr *e = parse_expr(in);
+        Expr *e = parse_comparg(in);
         skip_whitespace(in);
         c = in.get();
         if (c != ')') {
@@ -120,8 +132,57 @@ static string* check_var(std::istream &in, string &var) {
     }
 }
 
+
+Expr *Expr::parse_if(std::istream &in) {
+
+    for (char i : "if") {
+        consume(in, i);
+    }
+
+    skip_whitespace(in);
+
+    Expr* boolExpr = parse_expr(in);
+
+    skip_whitespace(in);
+
+    for (char i : "_then") {
+        consume (in, i);
+    }
+
+    Expr* thenExpr = parse_expr(in);
+
+    skip_whitespace(in);
+
+    Expr* elseExpr = parse_expr(in);
+
+    return new IfExpr(boolExpr, thenExpr, elseExpr);
+}
+
+Expr *Expr::parse_true(std::istream &in) {
+
+    consume(in, 't');
+    consume(in, 'r');
+    consume(in, 'u');
+    consume(in, 'e');
+
+    return new BoolExpr(true);
+}
+
+
+Expr *Expr::parse_false(std::istream &in) {
+
+    consume(in, 'f');
+    consume(in, 'a');
+    consume(in, 'l');
+    consume(in, 's');
+    consume(in, 'e');
+
+    return new BoolExpr(false);
+}
+
+
 Expr *Expr::parse_let(std::istream &in) {
-    consume(in, '_');
+
     consume(in, 'l');
     consume(in, 'e');
     consume(in, 't');
@@ -134,7 +195,7 @@ Expr *Expr::parse_let(std::istream &in) {
     consume(in, '=');
     skip_whitespace(in);
 
-    Expr* expr1 = parse_expr(in);
+    Expr* expr1 = parse_comparg(in);
 
 
     skip_whitespace(in);
@@ -143,7 +204,7 @@ Expr *Expr::parse_let(std::istream &in) {
     consume(in, 'n');
     skip_whitespace(in);
 
-    Expr* expr2 = parse_expr(in);
+    Expr* expr2 = parse_comparg(in);
 
 
     cout << var[0] << endl;
@@ -247,13 +308,17 @@ void NumExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
     out << this->rep;
 }
 
-BoolExpr::BoolExpr(std::string val) {
+BoolExpr::BoolExpr(bool val) {
 //    val->Expr
     this->rep = val;
 
-    if (val != "_true" && val != "_false") {
-        throw runtime_error("Boolean Value must be either _true or _false");
-    }
+//    if (!val || val) {
+//        throw runtime_error("Boolean Value must be a boolean");
+//    }
+//
+//    if (val != "_true" && val != "_false") {
+//        throw runtime_error("Boolean Value must be either _true or _false");
+//    }
 }
 
 bool BoolExpr::equals(Expr *e) {
@@ -278,11 +343,19 @@ Expr* BoolExpr::subst(std::string s, Expr *e) {
 }
 
 void BoolExpr::print(std::ostream &out) {
-    out << this->rep;
+    if (rep) {
+        out << "_true";
+    } else {
+        out << "_false";
+    }
 }
 
 void BoolExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
-    out << this->rep;
+    if (rep) {
+        out << "_true";
+    } else {
+        out << "_false";
+    }
 }
 
 EqExpr::EqExpr(Expr *lhs, Expr *rhs) {
@@ -571,7 +644,12 @@ void LetExpr::pretty_print_at(std::ostream &out, enum printStatus status){  // t
 }
 
 IfExpr::IfExpr(Expr* condition, Expr* statement1, Expr* statement2) {
-    this->condition = condition;
+    auto *t = dynamic_cast<BoolExpr*>(condition);
+    if (t == nullptr) {
+        throw runtime_error("First parameter of If Expr must be BoolExpr");
+    } else {
+        this->condition = condition;
+    }
     this->statement1 = statement1;
     this->statement2 = statement2;
 }
@@ -591,12 +669,10 @@ Val* IfExpr::interp() {
         throw std::runtime_error("First argument in if statement must interpreted as a Boolean Condition Value");
     }
 
-    if (condition_boolean->val == "_true") {
+    if (condition_boolean->val) {
         return statement1->interp();
-    } else if (condition_boolean->val == "_false"){
-        return statement2->interp();
     } else {
-        throw runtime_error("Condition Boolean neither true or false");
+        return statement2->interp();
     }
 }
 
