@@ -1,7 +1,7 @@
 //
 // Created by Awerkamp on 2/24/21.
 //
-
+#include <string>
 
 #ifndef MSD_SCRIPT_VAL_H
 #define MSD_SCRIPT_VAL_H
@@ -17,8 +17,6 @@ class Val {
 //        virtual Val* equals(Val)
 };
 
-
-
 class NumVal: public Val {
 public:
     int val;
@@ -31,6 +29,16 @@ public:
     bool equals(Val *e) override;
 };
 
-
+class BoolVal: public Val {
+public:
+    std::string val;
+    explicit BoolVal(std::string val) {
+        this->val = val;
+    }
+    Expr* to_expr() override;
+    Val* add_to(Val* other_val) override;
+    Val* mult_by(Val* other_val) override;
+    bool equals(Val *e) override;
+};
 
 #endif //MSD_SCRIPT_VAL_H

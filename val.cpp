@@ -30,3 +30,25 @@ bool NumVal::equals(Val *e) {
         return (this->val == t->val);
     }
 }
+
+Expr* BoolVal::to_expr() {
+
+    return new BoolExpr(this->val);
+}
+
+Val *BoolVal::add_to(Val* other_val) {
+    throw runtime_error("Cannot add to a boolean value");
+}
+
+Val *BoolVal::mult_by(Val *other_val) {
+    throw runtime_error("Cannot multiply by a boolean value");
+}
+
+bool BoolVal::equals(Val *e) {
+    auto * t = dynamic_cast<BoolVal*>(e);
+    if (t == nullptr) {
+        return false;
+    } else {
+        return this->val == t->val;
+    }
+}
