@@ -278,13 +278,13 @@ Expr *Expr::parse_num(std::istream &in) {
 }
 
 Expr* Expr::parse_fun(std::istream &in) {
-    skipws(in);
+    skip_whitespace(in);
     AddExpr::consume(in, '(');
-    skipws(in);
+    skip_whitespace(in);
     Expr *formal_arg = AddExpr::parse_var(in);
-    skipws(in);
+    skip_whitespace(in);
     AddExpr::consume(in, ')');
-    skipws(in);
+    skip_whitespace(in);
     Expr *body = AddExpr::parse_comparg(in);
 
     std::ostream out(nullptr);
@@ -305,7 +305,8 @@ void Expr::skip_whitespace(std::istream &in) {
 void Expr::consume(std::istream &in, int expect) {
     int c = in.get();
     if (c != expect) {
-        cout << "this is what trying to consume" << (char)c << endl;
+        cout << "this is what trying to consume" << c << endl;
+        cout << "this is what was expected" << expect << endl;
         throw std::runtime_error("consume mismatch");
     }
 }

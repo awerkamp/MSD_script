@@ -286,6 +286,12 @@ TEST_CASE("print") {
     CHECK(((new LetExpr("x", new AddExpr(num1 , num2), new AddExpr(new VarExpr("x") , num2)))->to_string(out)) == "(_let x=(1+2) _in (x+2))");
     CHECK((((new LetExpr("x", new AddExpr(num1 , num2), new AddExpr(new VarExpr("x") , num2)))->to_string(out)) == "(_let x=(1+2) _in x+2)") == false);
 
+
+
+
+
+
+
     //BoolExpr
     auto* trueBoolExpr = new BoolExpr(true);
     CHECK(((trueBoolExpr)->to_string(out)) == "_true");
@@ -300,6 +306,49 @@ TEST_CASE("print") {
     CHECK(((eqExpr)->to_string(out)) == "(3==3)");
 
 }
+
+TEST_CASE("fun_expr") {
+//    _let f = _fun (x) x
+//    _in  f(2)
+    //equals
+    FunExpr *fun1 = new FunExpr("x", new VarExpr("x"));
+    FunExpr *fun2 = new FunExpr("y", new VarExpr(
+            "y"));// creating new Num object to assign memory for that object Making a pointer to the Expr class
+    //NumExpr* num = new NumExpr(2);
+    CHECK(fun1->equals(fun2) == false);
+    //equals
+    FunExpr *fun3 = new FunExpr("x", new VarExpr(
+            "x"));// creating new Num object to assign memory for that object Making a pointer to the Expr class
+    //NumExpr* num = new NumExpr(2);
+    CHECK(fun1->equals(fun3) == true);
+    ////equals NULL
+    FunExpr *fun4 = NULL;
+    CHECK(fun1->equals(fun4) == false);
+    //Has_Variable
+    //Subst
+    CHECK(fun1->subst("x", fun1)->equals(new FunExpr("x", new VarExpr("x"))));
+}
+
+
+TEST_CASE("call_expr") {
+//    (_fun (x) x)(10)
+    //equals
+    CallExpr* call1 =  new CallExpr(new FunExpr("x", new VarExpr("x")), new NumExpr(10));
+    CallExpr* call2 =  new CallExpr(new FunExpr("x", new VarExpr("x")), new NumExpr(10));
+    CallExpr* call3 = NULL;
+    CallExpr* call4 =  new CallExpr(new FunExpr("x", new VarExpr("x")), new NumExpr(11));
+    CHECK(call1->equals(call3) == false);
+    CHECK(call1->equals(call2) == true);
+    CHECK(call1->equals(call4) == false);
+    //Has_Variable
+    //print:
+    std::stringstream empty_string_string(""); // empty but gets set to fun1
+    call1->print(empty_string_string);
+    //_fun (x) x
+    //std::cout << empty_string_string.str() << std::endl;
+//    CHECK( (empty_string_string.str() == "(_fun (x) x) (10)") );
+}
+
 
 //TEST_CASE("pretty_print") {
 //
@@ -393,11 +442,17 @@ TEST_CASE("parse_test") {
     CHECK_THROWS_AS( Expr::parse_str("__ test")->equals(ten_plus_one), exception); // testing expression Add
     CHECK_THROWS_AS( Expr::parse_str("_it test")->equals(ten_plus_one), exception); // testing expression Add
 
-
+//_let f = _fun (x) x*x_in  f(2):
 //    // testing for parse_let (add other types later)
 //    _let x = 1 _ in x + 2
 //     CHECK( parse_str("_let x = 1 _ in x + 2 ")->equals( (new _let(new Variable("x"),
 //    //new Num(1), new Add(new Variable("x"), new Num(2))));)); // testing whitespace
+
+
+// todo: uncomment this
+//    CHECK( Expr::parse_str("(_fun (x) x + 1)(10)")->interp()->equals(new NumVal(11)));
+
+
 }
 
 
