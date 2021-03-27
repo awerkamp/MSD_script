@@ -9,11 +9,11 @@
 #include <iostream>
 #include <sstream>
 
-
 using namespace std;
 
 Expr *Expr::parse_expr(std::istream &in) {
         Expr *e;
+
         e = parse_comparg(in);  // Chaged to comparg
         skip_whitespace(in);
 
@@ -51,7 +51,7 @@ Expr *Expr::parse_comparg(std::istream &in) {
 
 Expr *Expr::parse_str(std::string s) {
     std::istringstream in(s); // read the stream as a std::istringstream in(s);
-    return Expr::parse_comparg(in);
+    return Expr::parse_expr(in);
 }
 
 Expr *Expr::parse_addend(std::istream &in) {
@@ -82,24 +82,55 @@ Expr *Expr::parse_var(std::istream &in) {
     return new VarExpr(var);
 }
 
-
 Expr *Expr::parse_multicand(std::istream &in) {
+    Expr *expr = parse_inner(in);
+    while (in.peek() == '(') {
+        Expr *actual_arg = parse_expr(in);
+        consume(in, ')');
+        expr = new CallExpr(expr, actual_arg);
+    }
+    return expr;
+}
+
+static std::string parse_alphabetic(std::istream &in, std::string prefix) {
+    std::string name = prefix;
+    while (1) {
+        char c = in.peek();
+        if (!isalpha(c)) {
+            break;
+        } else {
+            name += in.get();
+        }
+
+    }
+    return name;
+}
+
+std::string parse_keyword(std::istream &in) {
+    in.get();
+    return parse_alphabetic(in, "_");
+}
+
+Expr *Expr::parse_inner(std::istream &in) {
     skip_whitespace(in);
     int c = in.peek();
 
     if ((c == '-') || isdigit(c)) {
         return parse_num(in);
     } else if (c == '_') {
-        consume(in, '_');
+//        consume(in, '_');
+        string key_word = parse_keyword(in);
         c = in.peek();
-        if (c == 'i'){
+        if (key_word == "_if"){
             return parse_if(in);
-        } else if (c == 't') {
+        } else if (key_word == "_true") {
             return parse_true(in);
-        } else if (c == 'f') {
+        } else if (key_word == "_false") {
             return parse_false(in);
-        } else if (c == 'l') {
+        } else if (key_word == "_let") {
             return parse_let(in);
+        } else if (key_word == "_fun") {
+            return parse_fun(in);
         } else {
             throw runtime_error("Invalid input after underscore _ ");
         }
@@ -135,21 +166,36 @@ static string* check_var(std::istream &in, string &var) {
 
 Expr *Expr::parse_if(std::istream &in) {
 
-    for (char i : "if") {
-        consume(in, i);
-    }
+//    consume(in, 'i');
+//    consume(in, 'f');
 
     skip_whitespace(in);
 
     Expr* boolExpr = parse_expr(in);
 
+
     skip_whitespace(in);
 
-    for (char i : "_then") {
-        consume (in, i);
-    }
+
+    consume(in, '_');
+    consume(in, 't');
+    consume(in, 'h');
+    consume(in, 'e');
+    consume(in, 'n');
+
+//    for (char i : "_then") {
+//        consume (in, i);
+//    }
 
     Expr* thenExpr = parse_expr(in);
+
+    skip_whitespace(in);
+
+    consume(in, '_');
+    consume(in, 'e');
+    consume(in, 'l');
+    consume(in, 's');
+    consume(in, 'e');
 
     skip_whitespace(in);
 
@@ -160,10 +206,10 @@ Expr *Expr::parse_if(std::istream &in) {
 
 Expr *Expr::parse_true(std::istream &in) {
 
-    consume(in, 't');
-    consume(in, 'r');
-    consume(in, 'u');
-    consume(in, 'e');
+//    consume(in, 't');
+//    consume(in, 'r');
+//    consume(in, 'u');
+//    consume(in, 'e');
 
     return new BoolExpr(true);
 }
@@ -171,11 +217,11 @@ Expr *Expr::parse_true(std::istream &in) {
 
 Expr *Expr::parse_false(std::istream &in) {
 
-    consume(in, 'f');
-    consume(in, 'a');
-    consume(in, 'l');
-    consume(in, 's');
-    consume(in, 'e');
+//    consume(in, 'f');
+//    consume(in, 'a');
+//    consume(in, 'l');
+//    consume(in, 's');
+//    consume(in, 'e');
 
     return new BoolExpr(false);
 }
@@ -183,9 +229,9 @@ Expr *Expr::parse_false(std::istream &in) {
 
 Expr *Expr::parse_let(std::istream &in) {
 
-    consume(in, 'l');
-    consume(in, 'e');
-    consume(in, 't');
+//    consume(in, 'l');
+//    consume(in, 'e');
+//    consume(in, 't');
     skip_whitespace(in);
 
     string temp;
@@ -206,8 +252,6 @@ Expr *Expr::parse_let(std::istream &in) {
 
     Expr* expr2 = parse_comparg(in);
 
-
-    cout << var[0] << endl;
 
 
     return new LetExpr(var[0], expr1, expr2);
@@ -231,6 +275,22 @@ Expr *Expr::parse_num(std::istream &in) {
     if (negative)
         n = -n;
     return new NumExpr(n);
+}
+
+Expr* Expr::parse_fun(std::istream &in) {
+    skipws(in);
+    AddExpr::consume(in, '(');
+    skipws(in);
+    Expr *formal_arg = AddExpr::parse_var(in);
+    skipws(in);
+    AddExpr::consume(in, ')');
+    skipws(in);
+    Expr *body = AddExpr::parse_comparg(in);
+
+    std::ostream out(nullptr);
+    std::stringbuf str;
+    out.rdbuf(&str);
+    return new FunExpr(formal_arg->to_string(out), body);
 }
 
 void Expr::skip_whitespace(std::istream &in) {
@@ -257,19 +317,19 @@ std::string Expr::to_string(std::ostream &out) {
     return ss.str();
 }
 
-std::string Expr::to_string_pretty() {
-    std::ostream out(nullptr);
-    std::stringbuf str;
-    out.rdbuf(&str);
-    this->pretty_print(out);
-    std::stringstream ss;
-    ss << out.rdbuf();
-    return ss.str();
-}
+//std::string Expr::to_string_pretty() {
+//    std::ostream out(nullptr);
+//    std::stringbuf str;
+//    out.rdbuf(&str);
+//    this->pretty_print(out);
+//    std::stringstream ss;
+//    ss << out.rdbuf();
+//    return ss.str();
+//}
 
-void Expr::pretty_print(std::ostream &out) {
-    pretty_print_at(out, print_group_none);
-}
+//void Expr::pretty_print(std::ostream &out) {
+//    pretty_print_at(out, print_group_none);
+//}
 
 
 
@@ -303,10 +363,10 @@ Expr* NumExpr::subst(std::string s, Expr *e) {
 void NumExpr::print(std::ostream &out) {
     out << this->rep;
 }
-
-void NumExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
-    out << this->rep;
-}
+//
+//void NumExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
+//    out << this->rep;
+//}
 
 BoolExpr::BoolExpr(bool val) {
 //    val->Expr
@@ -350,13 +410,13 @@ void BoolExpr::print(std::ostream &out) {
     }
 }
 
-void BoolExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
-    if (rep) {
-        out << "_true";
-    } else {
-        out << "_false";
-    }
-}
+//void BoolExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
+//    if (rep) {
+//        out << "_true";
+//    } else {
+//        out << "_false";
+//    }
+//}
 
 EqExpr::EqExpr(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
@@ -373,10 +433,12 @@ bool EqExpr::equals(Expr *e) {
 }
 
 Val* EqExpr::interp() {
+
     if (this->lhs->interp()->equals(this->rhs->interp())) {
-        return new BoolVal("_true");
+
+        return new BoolVal(true);
     } else {
-        return new BoolVal("_false");
+        return new BoolVal(false);
     }
 }
 
@@ -396,23 +458,20 @@ void EqExpr::print(std::ostream &out) {
     out << ")";
 }
 
-void EqExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
-
-    if(status == print_group_add || status == print_group_add_or_mult) {
-        out << "(";
-        this->lhs->pretty_print_at(out, print_group_add);
-        out << " == ";
-        this->rhs->pretty_print_at(out, print_group_none);
-        out << ")";
-    } else {
-        this->lhs->pretty_print_at(out, print_group_add);
-        out << " == ";
-        this->rhs->pretty_print_at(out, print_group_none);
-    }
-}
-
-
-
+//void EqExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
+//
+//    if(status == print_group_add || status == print_group_add_or_mult) {
+//        out << "(";
+//        this->lhs->pretty_print_at(out, print_group_add);
+//        out << " == ";
+//        this->rhs->pretty_print_at(out, print_group_none);
+//        out << ")";
+//    } else {
+//        this->lhs->pretty_print_at(out, print_group_add);
+//        out << " == ";
+//        this->rhs->pretty_print_at(out, print_group_none);
+//    }
+//}
 
 AddExpr::AddExpr(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
@@ -448,20 +507,20 @@ void AddExpr::print(std::ostream &out) {
     out << ")";
 }
 
-void AddExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
-
-    if(status == print_group_add || status == print_group_add_or_mult) {
-        out << "(";
-        this->lhs->pretty_print_at(out, print_group_add);
-        out << " + ";
-        this->rhs->pretty_print_at(out, print_group_none);
-        out << ")";
-    } else {
-        this->lhs->pretty_print_at(out, print_group_add);
-        out << " + ";
-        this->rhs->pretty_print_at(out, print_group_none);
-    }
-}
+//void AddExpr::pretty_print_at(std::ostream &out, enum printStatus status) {
+//
+//    if(status == print_group_add || status == print_group_add_or_mult) {
+//        out << "(";
+//        this->lhs->pretty_print_at(out, print_group_add);
+//        out << " + ";
+//        this->rhs->pretty_print_at(out, print_group_none);
+//        out << ")";
+//    } else {
+//        this->lhs->pretty_print_at(out, print_group_add);
+//        out << " + ";
+//        this->rhs->pretty_print_at(out, print_group_none);
+//    }
+//}
 
 MultExpr::MultExpr(Expr *lhs, Expr *rhs) {
     this->lhs = lhs;
@@ -469,7 +528,7 @@ MultExpr::MultExpr(Expr *lhs, Expr *rhs) {
 }
 
 bool MultExpr::equals(Expr *e) {
-    MultExpr *t = dynamic_cast<MultExpr*>(e);
+    auto *t = dynamic_cast<MultExpr*>(e);
     if (t == nullptr) {
         return false;
     } else {
@@ -498,20 +557,20 @@ void MultExpr::print(std::ostream &out) {
 }
 
 
-void MultExpr::pretty_print_at(std::ostream &out, enum printStatus status){
-
-    if(status == print_group_add_or_mult) {
-        out << "(";
-        this->lhs->pretty_print_at(out, print_group_add_or_mult);
-        out << " * ";
-        this->rhs->pretty_print_at(out, print_group_add);
-        out << ")";
-    } else {
-        this->lhs->pretty_print_at(out, print_group_add_or_mult);
-        out << " * ";
-        this->rhs->pretty_print_at(out, print_group_add);
-    }
-}
+//void MultExpr::pretty_print_at(std::ostream &out, enum printStatus status){
+//
+//    if(status == print_group_add_or_mult) {
+//        out << "(";
+//        this->lhs->pretty_print_at(out, print_group_add_or_mult);
+//        out << " * ";
+//        this->rhs->pretty_print_at(out, print_group_add);
+//        out << ")";
+//    } else {
+//        this->lhs->pretty_print_at(out, print_group_add_or_mult);
+//        out << " * ";
+//        this->rhs->pretty_print_at(out, print_group_add);
+//    }
+//}
 
 VarExpr::VarExpr(std::string name) {
     this->name = name;
@@ -546,9 +605,9 @@ void VarExpr::print(std::ostream &out) {
     out << this->name;
 }
 
-void VarExpr::pretty_print_at(std::ostream &out, enum printStatus status){
-    out << this->name;
-}
+//void VarExpr::pretty_print_at(std::ostream &out, enum printStatus status){
+//    out << this->name;
+//}
 
 LetExpr::LetExpr(std::string lhs, Expr* rhs, Expr* body) {
     this->lhs = lhs;
@@ -602,9 +661,9 @@ void LetExpr::print(std::ostream &out) {
     out << ")";
 }
 
-void LetExpr::pretty_print_at(std::ostream &out, enum printStatus status){  // todo Make Indented and on new line when let within let
-
-    print(out);
+//void LetExpr::pretty_print_at(std::ostream &out, enum printStatus status){  // todo Make Indented and on new line when let within let
+//
+//    print(out);
 
 //    auto *r = dynamic_cast<LetExpr*>(this->rhs);
 //    auto *b = dynamic_cast<LetExpr*>(this->body);
@@ -641,15 +700,16 @@ void LetExpr::pretty_print_at(std::ostream &out, enum printStatus status){  // t
 //            this->body->pretty_print_at(out, print_group_none);
 //        }
 //    }
-}
+//}
 
 IfExpr::IfExpr(Expr* condition, Expr* statement1, Expr* statement2) {
-    auto *t = dynamic_cast<BoolExpr*>(condition);
-    if (t == nullptr) {
-        throw runtime_error("First parameter of If Expr must be BoolExpr");
-    } else {
-        this->condition = condition;
-    }
+//    auto *t = dynamic_cast<BoolExpr*>(condition);
+//    if (t == nullptr) {
+//        throw runtime_error("First parameter of If Expr must be BoolExpr");
+//    } else {
+//
+//    }
+    this->condition = condition;
     this->statement1 = statement1;
     this->statement2 = statement2;
 }
@@ -664,12 +724,8 @@ bool IfExpr::equals(Expr *e) {
 }
 
 Val* IfExpr::interp() {
-    auto *condition_boolean = dynamic_cast<BoolVal*>(this->condition->interp());  // Ensures first argument is of type Boolean
-    if (condition_boolean == nullptr) {
-        throw std::runtime_error("First argument in if statement must interpreted as a Boolean Condition Value");
-    }
 
-    if (condition_boolean->val) {
+    if (condition->interp()->equals(new BoolVal(true))) {
         return statement1->interp();
     } else {
         return statement2->interp();
@@ -695,7 +751,101 @@ void IfExpr::print(std::ostream &out) {
     out << ")";
 }
 
-void IfExpr::pretty_print_at(std::ostream &out, enum printStatus status){  // todo Make Indented and on new line when let within let
+//void IfExpr::pretty_print_at(std::ostream &out, enum printStatus status){  // todo Make Indented and on new line when let within let
+//
+//    print(out);
+//}
 
-    print(out);
+
+
+FunExpr::FunExpr(std::string formal_arg, Expr* body) {
+    this->formal_arg = formal_arg;
+    this->body = body;
 }
+
+bool FunExpr::equals(Expr* e) {
+    auto *t = dynamic_cast<FunExpr*>(e);
+    if (t == nullptr) {
+        return false;
+    } else {
+        return (formal_arg == t->formal_arg && this->body->equals(t->body));
+    }
+}
+
+Val* FunExpr::interp() {
+    return new FunVal(formal_arg, body);
+
+}
+
+bool FunExpr::has_variable() {
+    return false;
+}
+
+
+
+Expr* FunExpr::subst(std::string s, Expr *e) {
+
+    if(s.compare(formal_arg) == 0) {
+        return new FunExpr(this->formal_arg, this->body);
+    }
+
+    return new FunExpr(this->formal_arg, this->body);
+}
+
+void FunExpr::print(std::ostream &out) {
+    out << "(fun ( ";
+    out << formal_arg;
+    out << " )";
+    this->body->print(out);
+    out << ") ";
+}
+
+//void FunExpr::pretty_print(std::ostream &out) {
+//    out << "(fun ( ";
+//    out << formal_arg;
+//    out << " )";
+//    this->body->print(out);
+//    out << ") ";
+//
+//
+//}
+
+CallExpr::CallExpr(Expr* to_be_called, Expr *actual_arg) {
+    this -> to_be_called = to_be_called;
+    this->actual_arg = actual_arg;
+}
+
+bool CallExpr::equals(Expr *e) {
+    CallExpr *c = dynamic_cast<CallExpr *>(e);
+    if (c == NULL) {
+        return false;
+    } else {
+        return (this->to_be_called->equals(c->to_be_called) && this->actual_arg->equals(c->actual_arg));
+    }
+}
+
+
+Val *CallExpr::interp() {
+    return to_be_called->interp()->call(actual_arg->interp());
+}
+
+bool CallExpr::has_variable() {
+    throw std::runtime_error("invalied call");
+}
+
+Expr* CallExpr::subst(std::string sub, Expr* expr) {
+    Expr *new_to_be_called = to_be_called ->subst(sub, expr);
+    Expr *new_actual_arg = actual_arg->subst(sub, expr);
+    return new CallExpr(new_to_be_called, new_actual_arg);
+}
+
+void CallExpr::print(std::ostream &out) {
+
+    this->to_be_called->print(out);
+    out << "(";
+    this -> actual_arg -> print(out);
+    out << ")";
+}
+
+
+

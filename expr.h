@@ -26,10 +26,10 @@ public:
         print_group_add_or_mult,
         print_group_let
     } printStatus;
-    void pretty_print(std::ostream &out);
-    virtual void pretty_print_at(std::ostream &out, enum printStatus status) = 0;
+//    void pretty_print(std::ostream &out);
+//    virtual void pretty_print_at(std::ostream &out, enum printStatus status) = 0;
     std::string to_string(std::ostream &out);
-    std::string to_string_pretty();
+//    std::string to_string_pretty();
     static Expr* parse_num(std::istream &in);
     static void consume(std::istream &in, int expect);
     static void skip_whitespace(std::istream &in);
@@ -37,6 +37,7 @@ public:
     static Expr* parse_addend(std::istream &in);
     static Expr* parse_comparg(std::istream &in);
     static Expr* parse_expr(std::istream &in);
+    static Expr* parse_inner(std::istream &in);
 
     static Expr *parse_str(std::string s);
     static Expr* parse_let(std::istream &in);
@@ -44,6 +45,7 @@ public:
     static Expr* parse_false(std::istream &in);
     static Expr* parse_var(std::istream &in);
     static Expr* parse_if(std::istream &in);
+    static Expr* parse_fun(std::istream &in);
 };
 
 
@@ -56,7 +58,7 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+//    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
 
 class BoolExpr : public Expr {
@@ -68,7 +70,7 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+//    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
 
 class EqExpr : public Expr {
@@ -81,7 +83,7 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+//    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
 
 class AddExpr : public Expr {
@@ -94,7 +96,7 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+//    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
 
 class MultExpr : public Expr {
@@ -107,7 +109,7 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+//    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
 
 class VarExpr : public Expr {
@@ -119,7 +121,7 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+//    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
 
 class LetExpr : public Expr {
@@ -133,7 +135,7 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+//    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
 
 class IfExpr : public Expr {
@@ -147,9 +149,34 @@ public:
     bool has_variable() override;
     Expr* subst(std::string s, Expr* e) override;
     void print(std::ostream &out) override;
-    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+//    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
 
+class FunExpr : public Expr {
+public:
+    std::string formal_arg;
+    Expr *body;
+    FunExpr(std::string formal_arg, Expr *body);
+    bool equals(Expr *e) override;
+    Val* interp() override;
+    bool has_variable() override;
+    Expr* subst(std::string s, Expr* e) override;
+    void print(std::ostream &out) override;
+//    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+};
+
+class CallExpr : public Expr {
+public:
+    Expr *to_be_called;
+    Expr *actual_arg;
+    CallExpr(Expr* to_be_called, Expr* actual_arg);
+    bool equals(Expr *e) override;
+    Val* interp() override;
+    bool has_variable() override;
+    Expr* subst(std::string s, Expr* e) override;
+    void print(std::ostream &out) override;
+//    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+};
 
 
 #endif //MSD_SCRIPT_EXPR_H

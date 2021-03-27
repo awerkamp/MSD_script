@@ -23,7 +23,6 @@ void use_arguments(int argc, char **argv) {
             cout << "--test" << endl;
             cout << "--interp" << endl;
             cout << "--print" << endl;
-            cout << "--pretty-print" << endl;
         } else if (std::string(argv[i]) == "--test" ) {
             if (!isSeen) {
                 int returnStatus = Catch::Session().run(1,argv);
@@ -38,7 +37,7 @@ void use_arguments(int argc, char **argv) {
             }
         } else if (std::string(argv[i]) == "--interp") {
 
-                Expr* e = Expr::parse_comparg(std::cin);
+                Expr* e = Expr::parse_expr(std::cin);  // todo: changed to parse_expr
                 Val* v = e->interp();
                 e = v->to_expr();
 
@@ -51,10 +50,7 @@ void use_arguments(int argc, char **argv) {
             e->print(std::cout);
             exit(0);
 
-        } else if (std::string(argv[i]) == "--pretty-print") {
-            Expr* e = Expr::parse_comparg(std::cin);
-            e->pretty_print(std::cout);
-            exit(0);        }
+        }
         else {
             std::cerr << "Invalid Argument" << endl;
             exit(1);

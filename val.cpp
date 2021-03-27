@@ -31,6 +31,12 @@ bool NumVal::equals(Val *e) {
     }
 }
 
+Val* NumVal::call(Val* actual_arg) {
+    throw std::runtime_error("Cannot call a number");
+}
+
+
+
 Expr* BoolVal::to_expr() {
 
     return new BoolExpr(this->val);
@@ -53,3 +59,38 @@ bool BoolVal::equals(Val *e) {
     }
 }
 
+Val* BoolVal::call(Val *actual_arg) {
+    throw std::runtime_error("Cannot call a bool");
+}
+
+FunVal::FunVal(std::string formal_arg, Expr * body) {
+    this->formal_arg = formal_arg;
+    this->body = body;
+}
+
+Val *FunVal::call(Val *actual_arg) {
+    return this->body->subst(formal_arg, actual_arg->to_expr())->interp();
+}
+
+bool FunVal::equals(Val* other) {
+    FunVal *c = dynamic_cast<FunVal*>(other);
+    if (c == nullptr) {
+        return false;
+    } else {
+        return this->val == c->val;
+    }
+}
+
+Expr* FunVal::to_expr() {
+    FunExpr* funExpr = new FunExpr(this->formal_arg, this->body);
+
+    return funExpr;
+}
+
+Val* FunVal::add_to(Val *other) {
+    throw std::runtime_error("unable to add two functions");
+}
+
+Val* FunVal::mult_by(Val *other) {
+    throw std::runtime_error("unable to multiply two functions");
+}
