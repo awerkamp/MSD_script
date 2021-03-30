@@ -450,7 +450,7 @@ TEST_CASE("parse_test") {
 
 
 // todo: uncomment this
-//    CHECK( Expr::parse_str("(_fun (x) x + 1)(10)")->interp()->equals(new NumVal(11)));
+    CHECK( Expr::parse_str("(_fun (x) x + 1)(10)")->interp()->equals(new NumVal(11)));
 
 
 }

@@ -85,6 +85,7 @@ Expr *Expr::parse_var(std::istream &in) {
 Expr *Expr::parse_multicand(std::istream &in) {
     Expr *expr = parse_inner(in);
     while (in.peek() == '(') {
+        consume(in, '(');
         Expr *actual_arg = parse_expr(in);
         consume(in, ')');
         expr = new CallExpr(expr, actual_arg);
@@ -120,7 +121,7 @@ Expr *Expr::parse_inner(std::istream &in) {
     } else if (c == '_') {
 //        consume(in, '_');
         string key_word = parse_keyword(in);
-        c = in.peek();
+//        c = in.peek();
         if (key_word == "_if"){
             return parse_if(in);
         } else if (key_word == "_true") {
@@ -130,6 +131,7 @@ Expr *Expr::parse_inner(std::istream &in) {
         } else if (key_word == "_let") {
             return parse_let(in);
         } else if (key_word == "_fun") {
+            cout << "In the FUN" << endl;
             return parse_fun(in);
         } else {
             throw runtime_error("Invalid input after underscore _ ");
@@ -138,6 +140,7 @@ Expr *Expr::parse_inner(std::istream &in) {
       return parse_var(in);
     } else if (c == '('){
         consume(in, '(');
+        c = in.peek();
         Expr *e = parse_comparg(in);
         skip_whitespace(in);
         c = in.get();
@@ -149,7 +152,7 @@ Expr *Expr::parse_inner(std::istream &in) {
 
     else {
 //        consume(in, c);
-        cout << "This is the error" << (char)c << endl;
+        cout << "This is the error" << c << endl;
         throw std::runtime_error("invalid input 2 ");
     }
 }
@@ -290,6 +293,7 @@ Expr* Expr::parse_fun(std::istream &in) {
     std::ostream out(nullptr);
     std::stringbuf str;
     out.rdbuf(&str);
+
     return new FunExpr(formal_arg->to_string(out), body);
 }
 
@@ -779,7 +783,7 @@ Val* FunExpr::interp() {
 }
 
 bool FunExpr::has_variable() {
-    return false;
+    throw std::runtime_error("not implemented");
 }
 
 
@@ -789,14 +793,13 @@ Expr* FunExpr::subst(std::string s, Expr *e) {
     if(s.compare(formal_arg) == 0) {
         return new FunExpr(this->formal_arg, this->body);
     }
-
     return new FunExpr(this->formal_arg, this->body);
 }
 
 void FunExpr::print(std::ostream &out) {
-    out << "(fun ( ";
+    out << "(_fun (";
     out << formal_arg;
-    out << " )";
+    out << ") ";
     this->body->print(out);
     out << ") ";
 }
