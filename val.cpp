@@ -5,25 +5,25 @@
 #include "val.h"
 #include "expr.h"
 
-Expr* NumVal::to_expr() {
+PTR(Expr) NumVal::to_expr() {
 
-    return new NumExpr(this->val);
+    return NEW(NumExpr)(this->val);
 }
 
-Val *NumVal::add_to(Val* other_val) {
-    auto* other_num = dynamic_cast<NumVal*>(other_val);
+PTR(Val)  NumVal::add_to(PTR(Val) other_val) {
+    PTR(NumVal)other_num = CAST(NumVal)(other_val);
     if (other_num == NULL) throw std::runtime_error("add of non-number");
-    return new NumVal(val + other_num->val); // todo: not sure if this is right https://www.youtube.com/watch?v=Go5LJu-X_F0&list=PLbdXd8eufjyUWQw3Mqb3SNQEkdjd_S_rB&index=6
+    return NEW(NumVal)(val + other_num->val); // todo: not sure if this is right https://www.youtube.com/watch?v=Go5LJu-X_F0&list=PLbdXd8eufjyUWQw3Mqb3SNQEkdjd_S_rB&index=6
 }
 
-Val *NumVal::mult_by(Val* other_val) {
-    auto* other_num = dynamic_cast<NumVal*>(other_val);
+PTR(Val)  NumVal::mult_by(PTR(Val) other_val) {
+    PTR(NumVal) other_num = CAST(NumVal)(other_val);
     if (other_num == NULL) throw std::runtime_error("multiply of non-number");
-    return new NumVal(val * other_num->val);
+    return NEW (NumVal)(val * other_num->val);
 }
 
-bool NumVal::equals(Val *e) {
-    auto *t = dynamic_cast<NumVal*>(e);
+bool NumVal::equals(PTR(Val)  e) {
+    PTR(NumVal) t = CAST(NumVal)(e);
     if (t == nullptr) {
         return false;
     } else {
@@ -31,27 +31,27 @@ bool NumVal::equals(Val *e) {
     }
 }
 
-Val* NumVal::call(Val* actual_arg) {
+PTR(Val) NumVal::call(PTR(Val) actual_arg) {
     throw std::runtime_error("Cannot call a number");
 }
 
 
 
-Expr* BoolVal::to_expr() {
+PTR(Expr) BoolVal::to_expr() {
 
-    return new BoolExpr(this->val);
+    return NEW (BoolExpr)(this->val);
 }
 
-Val *BoolVal::add_to(Val* other_val) {
+PTR(Val)  BoolVal::add_to(PTR(Val) other_val) {
     throw runtime_error("Cannot add to a boolean value");
 }
 
-Val *BoolVal::mult_by(Val *other_val) {
+PTR(Val)  BoolVal::mult_by(PTR(Val)  other_val) {
     throw runtime_error("Cannot multiply by a boolean value");
 }
 
-bool BoolVal::equals(Val *e) {
-    auto * t = dynamic_cast<BoolVal*>(e);
+bool BoolVal::equals(PTR(Val)  e) {
+    PTR(BoolVal) t = CAST(BoolVal)(e);
     if (t == nullptr) {
         return false;
     } else {
@@ -59,21 +59,21 @@ bool BoolVal::equals(Val *e) {
     }
 }
 
-Val* BoolVal::call(Val *actual_arg) {
+PTR(Val) BoolVal::call(PTR(Val)  actual_arg) {
     throw std::runtime_error("Cannot call a bool");
 }
 
-FunVal::FunVal(std::string formal_arg, Expr * body) {
+FunVal::FunVal(std::string formal_arg, PTR(Expr) body) {
     this->formal_arg = formal_arg;
     this->body = body;
 }
 
-Val *FunVal::call(Val *actual_arg) {
+PTR(Val) FunVal::call(PTR(Val) actual_arg) {
     return this->body->subst(formal_arg, actual_arg->to_expr())->interp();
 }
 
-bool FunVal::equals(Val* other) {
-    FunVal *c = dynamic_cast<FunVal*>(other);
+bool FunVal::equals(PTR(Val) other) {
+    PTR(FunVal) c = CAST(FunVal)(other);
     if (c == nullptr) {
         return false;
     } else {
@@ -81,16 +81,16 @@ bool FunVal::equals(Val* other) {
     }
 }
 
-Expr* FunVal::to_expr() {
-    FunExpr* funExpr = new FunExpr(this->formal_arg, this->body);
+PTR(Expr) FunVal::to_expr() {
+    PTR(FunExpr)funExpr = NEW (FunExpr)(this->formal_arg, this->body);
 
     return funExpr;
 }
 
-Val* FunVal::add_to(Val *other) {
+PTR(Val) FunVal::add_to(PTR(Val) other) {
     throw std::runtime_error("unable to add two functions");
 }
 
-Val* FunVal::mult_by(Val *other) {
+PTR(Val) FunVal::mult_by(PTR(Val) other) {
     throw std::runtime_error("unable to multiply two functions");
 }

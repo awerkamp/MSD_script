@@ -9,6 +9,7 @@
 #include "catch.hpp"
 #include "expr.h"
 #include "val.h"
+#include "pointer.h"
 
 using namespace std;
 
@@ -37,8 +38,8 @@ void use_arguments(int argc, char **argv) {
             }
         } else if (std::string(argv[i]) == "--interp") {
 
-                Expr* e = Expr::parse_expr(std::cin);  // todo: changed to parse_expr
-                Val* v = e->interp();
+                PTR(Expr) e = Expr::parse_expr(std::cin);  // todo: changed to parse_expr
+                PTR(Val) v = e->interp();
                 e = v->to_expr();
 
                 std::cout << e->to_string(cout) << "\n";
@@ -46,7 +47,7 @@ void use_arguments(int argc, char **argv) {
 
 
         } else if (std::string(argv[i]) == "--print") {
-            Expr* e = Expr::parse_comparg(std::cin);
+            PTR(Expr) e = Expr::parse_comparg(std::cin);
             e->print(std::cout);
             exit(0);
 
