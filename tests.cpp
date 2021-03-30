@@ -287,12 +287,6 @@ TEST_CASE("print") {
     CHECK(((NEW(LetExpr)("x", NEW(AddExpr)(num1 , num2), NEW(AddExpr)(NEW(VarExpr)("x") , num2)))->to_string(out)) == "(_let x=(1+2) _in (x+2))");
     CHECK((((NEW(LetExpr)("x", NEW(AddExpr)(num1 , num2), NEW(AddExpr)(NEW(VarExpr)("x") , num2)))->to_string(out)) == "(_let x=(1+2) _in x+2)") == false);
 
-
-
-
-
-
-
     //BoolExpr
     PTR(BoolExpr) trueBoolExpr = NEW(BoolExpr)(true);
     CHECK(((trueBoolExpr)->to_string(out)) == "_true");

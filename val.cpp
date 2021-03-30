@@ -82,7 +82,7 @@ bool FunVal::equals(PTR(Val) other) {
 }
 
 PTR(Expr) FunVal::to_expr() {
-    PTR(FunExpr)funExpr = NEW (FunExpr)(this->formal_arg, this->body);
+    PTR(FunExpr)funExpr = NEW(FunExpr)(this->formal_arg, this->body);
 
     return funExpr;
 }

@@ -157,10 +157,10 @@ PTR(Expr) Expr::parse_inner(std::istream &in) {
     }
 }
 
-PTR(string) check_var(std::istream &in, string &var) {
+string check_var(std::istream &in, string &var) {
     if (in.peek() >= 65 && in.peek() <= 90 || in.peek() >= 97 && in.peek() <= 122 ) {
         var = (char)in.get();
-        return &var;
+        return var;
     } else {
         throw std::runtime_error("not a variable");
     }
@@ -252,7 +252,7 @@ PTR(Expr) Expr::parse_let(std::istream &in) {
     skip_whitespace(in);
 
     string temp;
-    PTR(string) var = check_var(in, temp);
+    string var = check_var(in, temp);
 
     skip_whitespace(in);
     consume(in, '=');
@@ -269,9 +269,7 @@ PTR(Expr) Expr::parse_let(std::istream &in) {
 
     PTR(Expr) expr2 = parse_comparg(in);
 
-
-
-    return NEW(LetExpr)(var[0], expr1, expr2);
+    return NEW(LetExpr)(var, expr1, expr2);
 }
 
 PTR(Expr) Expr::parse_num(std::istream &in) {
@@ -308,7 +306,7 @@ PTR(Expr) Expr::parse_fun(std::istream &in) {
     std::stringbuf str;
     out.rdbuf(&str);
 
-    return NEW( FunExpr(formal_arg->to_string(out), body));
+    return NEW( FunExpr)(formal_arg->to_string(out), body);
 }
 
 void Expr::skip_whitespace(std::istream &in) {
@@ -792,8 +790,7 @@ bool FunExpr::equals(PTR(Expr) e) {
 }
 
 PTR(Val) FunExpr::interp() {
-    return NEW( FunVal(formal_arg, body));
-
+    return NEW(FunVal)(this->formal_arg, this->body);
 }
 
 bool FunExpr::has_variable() {
@@ -805,9 +802,9 @@ bool FunExpr::has_variable() {
 PTR(Expr) FunExpr::subst(std::string s, PTR(Expr) e) {
 
     if(s.compare(formal_arg) == 0) {
-        return NEW( FunExpr(this->formal_arg, this->body));
+        return NEW( FunExpr)(this->formal_arg, this->body);
     }
-    return NEW( FunExpr(this->formal_arg, this->body));
+    return NEW( FunExpr)(this->formal_arg, this->body);
 }
 
 void FunExpr::print(std::ostream &out) {
