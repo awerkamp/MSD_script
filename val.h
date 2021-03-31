@@ -1,17 +1,24 @@
 //
 // Created by Awerkamp on 2/24/21.
 //
-#include <string>
-#include "pointer.h"
+
+
+//#include "env.h"
 
 #ifndef MSD_SCRIPT_VAL_H
 #define MSD_SCRIPT_VAL_H
+
+#include <string>
+#include "pointer.h"
+#include "expr.h"
+#include <cstdio>
 
 class Expr;
 
 CLASS (Val) {
     public:
-        virtual PTR(Expr) to_expr() = 0;  // should be virtual for sure (not sure about others)
+//        virtual PTR(Expr) to_expr() = 0;  // should be virtual for sure (not sure about others)
+        virtual std::string to_string() = 0;
         virtual PTR(Val) add_to(PTR(Val) other_val) = 0;
         virtual PTR(Val) mult_by(PTR(Val) other_val) = 0;
         virtual bool equals(PTR(Val) e) = 0;
@@ -25,7 +32,8 @@ public:
     explicit NumVal(int val) {
         this->val =  val;
     }
-    PTR(Expr) to_expr() override;
+//    PTR(Expr) to_expr() override;
+    std::string to_string() override;
     PTR(Val) add_to(PTR(Val) other_val) override;
     PTR(Val) mult_by(PTR(Val) other_val) override;
     bool equals(PTR(Val) e) override;
@@ -38,7 +46,8 @@ public:
     explicit BoolVal(bool val) {
         this->val = val;
     }
-    PTR(Expr) to_expr() override;
+//    PTR(Expr) to_expr() override;
+    std::string to_string() override;
     PTR(Val) add_to(PTR(Val) other_val) override;
     PTR(Val) mult_by(PTR(Val) other_val) override;
     bool equals(PTR(Val) e) override;
@@ -49,10 +58,13 @@ class FunVal: public Val {
 public:
     std::string formal_arg;
     PTR(Expr) body;
-    FunVal(std::string formal_arg, PTR(Expr) body);
+    PTR(Env) env;
+
+    FunVal(std::string formal_arg, PTR(Expr) body, PTR(Env) env);
 
     bool equals(PTR(Val) other) override;
-    PTR(Expr) to_expr() override;
+//    PTR(Expr) to_expr() override;
+    std::string to_string() override;
     PTR(Val) add_to(PTR(Val) other) override;
     PTR(Val) mult_by(PTR(Val) other) override;
     PTR(Val) call(PTR(Val) actual_arg) override;

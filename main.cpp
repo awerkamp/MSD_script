@@ -3,7 +3,8 @@
 //
 
 #include "cmdline.h"
-#include "pointer.h"
+
+// testing
 
 using namespace std;
 

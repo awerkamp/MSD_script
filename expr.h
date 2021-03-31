@@ -7,19 +7,22 @@
 
 #include<string>
 #include<iostream>
+#include <cstdio>
 #include "pointer.h"
+#include "env.h"
 // Do not #include val.h
 using namespace std;
 
 class Val;
+class Env;
 
 CLASS(Expr) {
 public:
 
     virtual bool equals(PTR(Expr) e) = 0;
-    virtual PTR(Val) interp() = 0;
+    virtual PTR(Val) interp(PTR(Env) env) = 0;
     virtual bool has_variable() = 0;
-    virtual PTR(Expr) subst(std::string s, PTR(Expr) e) = 0;
+//    virtual PTR(Expr) subst(std::string s, PTR(Expr) e) = 0;
     virtual void print(std::ostream &out) = 0;
         enum printStatus {
         print_group_none,
@@ -55,9 +58,9 @@ public:
     int rep;
     explicit NumExpr(int val);
     bool equals(PTR(Expr) e) override;
-    PTR(Val) interp() override;
+    PTR(Val) interp(PTR(Env) env) override;
     bool has_variable() override;
-    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
+//    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
@@ -65,11 +68,11 @@ public:
 class BoolExpr : public Expr {
 public:
     bool rep;
-    explicit BoolExpr(bool val);
+    explicit BoolExpr(bool rep);
     bool equals(PTR(Expr) e) override;
-    PTR(Val) interp() override;
+    PTR(Val) interp(PTR(Env) env) override;
     bool has_variable() override;
-    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
+//    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
@@ -80,9 +83,9 @@ public:
     PTR(Expr) rhs;
     EqExpr(PTR(Expr) lhs, PTR(Expr) rhs);
     bool equals(PTR(Expr) e) override;
-    PTR(Val) interp() override;
+    PTR(Val) interp(PTR(Env) env) override;
     bool has_variable() override;
-    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
+//    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
@@ -93,9 +96,9 @@ public:
     PTR(Expr) rhs;
     AddExpr(PTR(Expr) lhs, PTR(Expr) rhs);
     bool equals(PTR(Expr) e) override;
-    PTR(Val) interp() override;
+    PTR(Val) interp(PTR(Env) env) override;
     bool has_variable() override;
-    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
+//    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
@@ -106,21 +109,21 @@ public:
     PTR(Expr) rhs;
     MultExpr(PTR(Expr) lhs, PTR(Expr) rhs);
     bool equals(PTR(Expr) e) override;
-    PTR(Val) interp() override;
+    PTR(Val) interp(PTR(Env) env) override;
     bool has_variable() override;
-    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
+//    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
 
 class VarExpr : public Expr {
 public:
-    std::string name;
+    std::string val;
     explicit VarExpr(std::string name);
     bool equals(PTR(Expr) e) override;
-    PTR(Val) interp() override;
+    PTR(Val) interp(PTR(Env) env) override;
     bool has_variable() override;
-    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
+//    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
@@ -132,9 +135,9 @@ public:
     PTR(Expr) body;
     LetExpr(std::string lhs, PTR(Expr) rhs, PTR(Expr) body);
     bool equals(PTR(Expr) e) override;
-    PTR(Val) interp() override;
+    PTR(Val) interp(PTR(Env) env) override;
     bool has_variable() override;
-    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
+//    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
@@ -146,9 +149,9 @@ public:
     PTR(Expr) statement2;
     IfExpr(PTR(Expr) condition, PTR(Expr) statement1, PTR(Expr) statement2);
     bool equals(PTR(Expr) e) override;
-    PTR(Val) interp() override;
+    PTR(Val) interp(PTR(Env) env) override;
     bool has_variable() override;
-    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
+//    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
 };
@@ -159,9 +162,9 @@ public:
     PTR(Expr) body;
     FunExpr(std::string formal_arg, PTR(Expr) body);
     bool equals(PTR(Expr) e) override;
-    PTR(Val) interp() override;
+    PTR(Val) interp(PTR(Env) env) override;
     bool has_variable() override;
-    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
+//    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status) override;
 };
@@ -172,9 +175,9 @@ public:
     PTR(Expr) actual_arg;
     CallExpr(PTR(Expr) to_be_called, PTR(Expr) actual_arg);
     bool equals(PTR(Expr) e) override;
-    PTR(Val) interp() override;
+    PTR(Val) interp(PTR(Env) env) override;
     bool has_variable() override;
-    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
+//    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status) override;
 };

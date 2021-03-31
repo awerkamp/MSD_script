@@ -95,47 +95,47 @@ TEST_CASE("Interp") {
     PTR(Expr) num3 = NEW(NumExpr)(3);
 
     // Add
-    CHECK((((NEW(AddExpr)(num1, num2))->interp())->equals(num3->interp())) == true); // 3 == 3
-    CHECK((((NEW(AddExpr)(num1, num2))->interp())->equals(num1->interp())) == false); // 3 == 1
+    CHECK((((NEW(AddExpr)(num1, num2))->interp(Env::empty))->equals(num3->interp(Env::empty))) == true); // 3 == 3
+    CHECK((((NEW(AddExpr)(num1, num2))->interp(Env::empty))->equals(num1->interp(Env::empty))) == false); // 3 == 1
 
     // Variables
-    CHECK_THROWS_WITH((NEW(VarExpr)("x"))->interp(), "There is no value for this expression" );
+    CHECK_THROWS_WITH((NEW(VarExpr)("x"))->interp(Env::empty), "There is no value for this expression" );
 
     // Multiply
-    CHECK((((NEW(MultExpr)(num1, num2))->interp())->equals(num2->interp())) == true); // 2 == 2
-    CHECK((((NEW(MultExpr)(num1, num2))->interp())->equals(num3->interp())) == false); // 2 == 3
+    CHECK((((NEW(MultExpr)(num1, num2))->interp(Env::empty))->equals(num2->interp(Env::empty))) == true); // 2 == 2
+    CHECK((((NEW(MultExpr)(num1, num2))->interp(Env::empty))->equals(num3->interp(Env::empty))) == false); // 2 == 3
 
     // Num
-    CHECK(((num2->interp())->equals(num2->interp())) == true); // 2 == 2
-    CHECK(((num2->interp())->equals(num3->interp())) == false); // 2 == 3
+    CHECK(((num2->interp(Env::empty))->equals(num2->interp(Env::empty))) == true); // 2 == 2
+    CHECK(((num2->interp(Env::empty))->equals(num3->interp(Env::empty))) == false); // 2 == 3
 
     // _let
-    CHECK(((NEW(LetExpr)("x", num1, NEW(VarExpr)("x")))->interp()->equals(NEW(NumVal)(1))) == true);
-    CHECK((((LetExpr("x", num2, NEW(VarExpr)("x"))).interp()->equals(NEW(NumVal)(1))) == false));
-    CHECK((((LetExpr("x", NEW(AddExpr)(num1, num2), NEW(VarExpr)("x"))).interp()->equals(NEW(NumVal)(3))) == true));
-    CHECK((((LetExpr("x", NEW(AddExpr)(num1, num2), NEW(AddExpr)(NEW(VarExpr)("x"), num2))).interp()->equals(NEW(NumVal)(5))) == true));
-    CHECK((((LetExpr("x", NEW(AddExpr)(num1, num2), NEW(AddExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x")))).interp()->equals(NEW(NumVal)(6))) == true));
-    CHECK_THROWS_AS((((LetExpr("x", NEW(AddExpr)(num1, num2), NEW(AddExpr)(NEW(VarExpr)("y"), NEW(VarExpr)("x")))).interp()->equals(NEW(NumVal)(6))) == true), exception);
-    CHECK_THROWS_AS((((LetExpr("x", NEW(AddExpr)(NEW(VarExpr)("x"), num2), NEW(AddExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x")))).interp()->equals(NEW(NumVal)(6))) == true), exception);
-    CHECK((((LetExpr("x", NEW(AddExpr)(num1, num2), NEW(AddExpr)(NEW(NumExpr)(0), NEW(NumExpr)(5)))).interp()->equals(NEW(NumVal)(5))) == true));  // todo: verify this is correct
-    CHECK(((LetExpr("x", num1, NEW(VarExpr)("x"))).interp()->equals(NEW(NumVal)(1))) == true);
+    CHECK(((NEW(LetExpr)("x", num1, NEW(VarExpr)("x")))->interp(Env::empty)->equals(NEW(NumVal)(1))) == true);
+    CHECK((((LetExpr("x", num2, NEW(VarExpr)("x"))).interp(Env::empty)->equals(NEW(NumVal)(1))) == false));
+    CHECK((((LetExpr("x", NEW(AddExpr)(num1, num2), NEW(VarExpr)("x"))).interp(Env::empty)->equals(NEW(NumVal)(3))) == true));
+    CHECK((((LetExpr("x", NEW(AddExpr)(num1, num2), NEW(AddExpr)(NEW(VarExpr)("x"), num2))).interp(Env::empty)->equals(NEW(NumVal)(5))) == true));
+    CHECK((((LetExpr("x", NEW(AddExpr)(num1, num2), NEW(AddExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x")))).interp(Env::empty)->equals(NEW(NumVal)(6))) == true));
+    CHECK_THROWS_AS((((LetExpr("x", NEW(AddExpr)(num1, num2), NEW(AddExpr)(NEW(VarExpr)("y"), NEW(VarExpr)("x")))).interp(Env::empty)->equals(NEW(NumVal)(6))) == true), exception);
+    CHECK_THROWS_AS((((LetExpr("x", NEW(AddExpr)(NEW(VarExpr)("x"), num2), NEW(AddExpr)(NEW(VarExpr)("x"), NEW(VarExpr)("x")))).interp(Env::empty)->equals(NEW(NumVal)(6))) == true), exception);
+    CHECK((((LetExpr("x", NEW(AddExpr)(num1, num2), NEW(AddExpr)(NEW(NumExpr)(0), NEW(NumExpr)(5)))).interp(Env::empty)->equals(NEW(NumVal)(5))) == true));  // todo: verify this is correct
+    CHECK(((LetExpr("x", num1, NEW(VarExpr)("x"))).interp(Env::empty)->equals(NEW(NumVal)(1))) == true);
 
     // EqExpr
     PTR(Expr) eqExp = NEW(EqExpr)(num1, num2);
-    CHECK(eqExp->interp()->equals(NEW(BoolVal)(false)) == true);
+    CHECK(eqExp->interp(Env::empty)->equals(NEW(BoolVal)(false)) == true);
     PTR(Expr) eqExp2 = NEW(EqExpr)(num1, num1);
-    CHECK(eqExp2->interp()->equals(NEW(BoolVal)(true)) == true);
+    CHECK(eqExp2->interp(Env::empty)->equals(NEW(BoolVal)(true)) == true);
 
     // ifExp
     PTR(Expr) ifExp = NEW(IfExpr)(NEW(BoolExpr)(true), num1, num2);
-    CHECK(ifExp->interp()->equals(NEW(NumVal)(1)) == true);
+    CHECK(ifExp->interp(Env::empty)->equals(NEW(NumVal)(1)) == true);
 
     PTR(Expr) ifExp2 = NEW(IfExpr)(NEW(BoolExpr)(false), num1, num2);
-    CHECK(ifExp2->interp()->equals(NEW(NumVal)(2)) == true);
+    CHECK(ifExp2->interp(Env::empty)->equals(NEW(NumVal)(2)) == true);
 
     // BoolExpr
     PTR(Expr) boolExpr = NEW(BoolExpr)(true);
-    CHECK(boolExpr->interp()->equals(NEW(BoolVal)(true)));
+    CHECK(boolExpr->interp(Env::empty)->equals(NEW(BoolVal)(true)));
 }
 
 
@@ -182,7 +182,7 @@ TEST_CASE("has_variable") {
     PTR(Expr) eqExp2 = NEW(EqExpr)(var1, var2);
     CHECK(eqExp2->has_variable() == true);
 //    PTR(Expr) eqExp2 = NEW(EqExpr)(num1, num1);
-//    CHECK(eqExp2->interp()->equals(NEW(BoolVal)(true)) == true);
+//    CHECK(eqExp2->interp(Env::empty)->equals(NEW(BoolVal)(true)) == true);
 
     // ifExp
     PTR(Expr) ifExp = NEW(IfExpr)(NEW(BoolExpr)(true), num1, num2);
@@ -195,70 +195,70 @@ TEST_CASE("has_variable") {
 TEST_CASE("subst") {
 
     // Var
-    CHECK(((NEW(VarExpr)("x"))->subst("x", NEW(VarExpr)("y"))->equals(NEW(VarExpr)("y"))) == true);
-    CHECK(((NEW(VarExpr)("x"))->subst("x", NEW(VarExpr)("y"))->equals(NEW(VarExpr)("x"))) == false);
-    CHECK(((NEW(VarExpr)("x"))->subst("y", NEW(VarExpr)("y"))->equals(NEW(VarExpr)("y"))) == false);
+//    CHECK(((NEW(VarExpr)("x"))->subst("x", NEW(VarExpr)("y"))->equals(NEW(VarExpr)("y"))) == true);
+//    CHECK(((NEW(VarExpr)("x"))->subst("x", NEW(VarExpr)("y"))->equals(NEW(VarExpr)("x"))) == false);
+//    CHECK(((NEW(VarExpr)("x"))->subst("y", NEW(VarExpr)("y"))->equals(NEW(VarExpr)("y"))) == false);
 
     // Num
-    CHECK(((NEW(NumExpr)(1))->subst("x", NEW(VarExpr)("y"))->equals(NEW(NumExpr)(1))) == true);
+//    CHECK(((NEW(NumExpr)(1))->subst("x", NEW(VarExpr)("y"))->equals(NEW(NumExpr)(1))) == true);
 
     // Add
     CHECK( (NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(7)))
-    ->subst("x", NEW(VarExpr)("y"))
+//    ->subst("x", NEW(VarExpr)("y"))
     ->equals(NEW(AddExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(7))) );
 
     // Mult
-    CHECK( (NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(7)))
-    ->subst("x", NEW(VarExpr)("y"))
-    ->equals(NEW(MultExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(7))) );
+//    CHECK( (NEW(MultExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(7)))
+//    ->subst("x", NEW(VarExpr)("y"))
+//    ->equals(NEW(MultExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(7))) );
 
     // _let
-    CHECK( (NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(VarExpr)("y")))
-                   ->subst("y", NEW(VarExpr)("x"))
-                   ->equals(NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(VarExpr)("x"))) );
+//    CHECK( (NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(VarExpr)("y")))
+//                   ->subst("y", NEW(VarExpr)("x"))
+//                   ->equals(NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(VarExpr)("x"))) );
 
-    CHECK( (NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(VarExpr)("x")))
-                   ->subst("y", NEW(VarExpr)("x"))
-                   ->equals(NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(VarExpr)("x"))) );
-    CHECK((NEW(LetExpr)("t", NEW(NumExpr)(7), NEW(VarExpr)("x")))
-                   ->subst("x", NEW(VarExpr)("z"))
-                   ->equals(NEW(LetExpr)("t", NEW(NumExpr)(7), NEW(VarExpr)("x"))) == false );
+//    CHECK( (NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(VarExpr)("x")))
+//                   ->subst("y", NEW(VarExpr)("x"))
+//                   ->equals(NEW(LetExpr)("x", NEW(NumExpr)(7), NEW(VarExpr)("x"))) );
+//    CHECK((NEW(LetExpr)("t", NEW(NumExpr)(7), NEW(VarExpr)("x")))
+//                   ->subst("x", NEW(VarExpr)("z"))
+//                   ->equals(NEW(LetExpr)("t", NEW(NumExpr)(7), NEW(VarExpr)("x"))) == false );
 
     PTR(Expr) let1 = NEW(LetExpr)("x",
                              NEW(NumExpr)(1),
                              NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(2)));
-    CHECK( let1->subst("x", NEW(AddExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(3)))
-                   ->equals(let1) );
+//    CHECK( let1->subst("x", NEW(AddExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(3)))
+//                   ->equals(let1) );
 
     PTR(Expr) let2 = (NEW(LetExpr)("x",
                               NEW(VarExpr)("x"),
                               NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(2))));
-    CHECK( let2->subst("x", NEW(AddExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(3)))
-                   ->equals(NEW(LetExpr)("x",
-                                        NEW(AddExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(3)),
-                                        NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(2)))) );
+//    CHECK( let2->subst("x", NEW(AddExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(3)))
+//                   ->equals(NEW(LetExpr)("x",
+//                                        NEW(AddExpr)(NEW(VarExpr)("y"), NEW(NumExpr)(3)),
+//                                        NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(2)))) );
 
     // BoolExpr
     PTR(BoolExpr) trueBoolExpr = NEW(BoolExpr)(true);
-    CHECK((trueBoolExpr)
-                  ->subst("x", NEW(VarExpr)("z"))
-                  ->equals(trueBoolExpr) == true);
+//    CHECK((trueBoolExpr)
+//                  ->subst("x", NEW(VarExpr)("z"))
+//                  ->equals(trueBoolExpr) == true);
 
     // EqExpr
     PTR(Expr) eqExp = NEW(EqExpr)(NEW(NumExpr)(1), NEW(NumExpr)(2));
-    CHECK(eqExp->subst("x", NEW(VarExpr)("z"))->equals(eqExp) == true);
+//    CHECK(eqExp->subst("x", NEW(VarExpr)("z"))->equals(eqExp) == true);
     PTR(Expr) eqExp2 = NEW(EqExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(2));
-    CHECK(eqExp2->subst("x", NEW(VarExpr)("z"))->equals(eqExp) == false);
+//    CHECK(eqExp2->subst("x", NEW(VarExpr)("z"))->equals(eqExp) == false);
 
 //    PTR(Expr) eqExp2 = NEW(EqExpr)(var1, var2);
 //    CHECK(eqExp2->has_variable() == true);
 
     // ifExp
     PTR(Expr) ifExp = NEW(IfExpr)(NEW(BoolExpr)(true), NEW(NumExpr)(1), NEW(NumExpr)(2));
-    CHECK(ifExp->subst("x", NEW(VarExpr)("z"))->equals(ifExp) == true);
+//    CHECK(ifExp->subst("x", NEW(VarExpr)("z"))->equals(ifExp) == true);
 
     PTR(Expr) ifExp2 = NEW(IfExpr)(NEW(BoolExpr)(true), NEW(VarExpr)("x"), NEW(NumExpr)(2));
-    CHECK(ifExp2->subst("x", NEW(NumExpr)(1))->equals(ifExp) == true);
+//    CHECK(ifExp2->subst("x", NEW(NumExpr)(1))->equals(ifExp) == true);
 }
 
 TEST_CASE("print") {
@@ -321,7 +321,7 @@ TEST_CASE("fun_expr") {
     CHECK(fun1->equals(fun4) == false);
     //Has_Variable
     //Subst
-    CHECK(fun1->subst("x", fun1)->equals(NEW(FunExpr)("x", NEW(VarExpr)("x"))));
+//    CHECK(fun1->subst("x", fun1)->equals(NEW(FunExpr)("x", NEW(VarExpr)("x"))));
 }
 
 
@@ -445,7 +445,7 @@ TEST_CASE("parse_test") {
 
 
 // todo: uncomment this
-    CHECK( Expr::parse_str("(_fun (x) x + 1)(10)")->interp()->equals(NEW(NumVal)(11)));
+//    CHECK( Expr::parse_str("(_fun (x) x + 1)(10)")->interp()->equals(NEW(NumVal)(11)));
 
 
 }
@@ -454,7 +454,7 @@ TEST_CASE("parse_test") {
 TEST_CASE("To Expr") {
 
     PTR(BoolVal) trueBoolExpr = NEW(BoolVal)(true);
-    CHECK(trueBoolExpr->to_expr()->equals(NEW(BoolExpr)(true)));
+//    CHECK(trueBoolExpr->to_expr()->equals(NEW(BoolExpr)(true)));
     PTR(BoolVal) trueBoolExpr2 = NEW(BoolVal)(false);
-    CHECK(trueBoolExpr2->to_expr()->equals(NEW(BoolExpr)(true)) == false);
+//    CHECK(trueBoolExpr2->to_expr()->equals(NEW(BoolExpr)(true)) == false);
 }

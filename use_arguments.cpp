@@ -2,14 +2,16 @@
 // Created by Awerkamp on 1/19/21.
 //
 
-#include <iostream>
-#include <string>
+
 
 #define CATCH_CONFIG_RUNNER 
 #include "catch.hpp"
 #include "expr.h"
 #include "val.h"
 #include "pointer.h"
+#include "env.h"
+#include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -38,11 +40,11 @@ void use_arguments(int argc, char **argv) {
             }
         } else if (std::string(argv[i]) == "--interp") {
 
-                PTR(Expr) e = Expr::parse_expr(std::cin);  // todo: changed to parse_expr
-                PTR(Val) v = e->interp();
-                e = v->to_expr();
+                PTR(Expr) y = Expr::parse_expr(std::cin);  // todo: changed to parse_expr
+                PTR(Val) v = y->interp(Env::empty);
+//                e = v->to_expr();
 
-                std::cout << e->to_string(cout) << "\n";
+                std::cout << v->to_string() << "\n";
                 exit(0);
 
 

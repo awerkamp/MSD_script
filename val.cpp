@@ -4,11 +4,13 @@
 
 #include "val.h"
 #include "expr.h"
+#include "env.h"
+#include <string>
 
-PTR(Expr) NumVal::to_expr() {
-
-    return NEW(NumExpr)(this->val);
-}
+//PTR(Expr) NumVal::to_expr() {
+//
+//    return NEW(NumExpr)(this->val);
+//}
 
 PTR(Val)  NumVal::add_to(PTR(Val) other_val) {
     PTR(NumVal)other_num = CAST(NumVal)(other_val);
@@ -35,12 +37,19 @@ PTR(Val) NumVal::call(PTR(Val) actual_arg) {
     throw std::runtime_error("Cannot call a number");
 }
 
+std::string NumVal::to_string() {
 
+    std::string str = std::to_string(val);
 
-PTR(Expr) BoolVal::to_expr() {
-
-    return NEW (BoolExpr)(this->val);
+    return str;
 }
+
+
+//
+//PTR(Expr) BoolVal::to_expr() {
+//
+//    return NEW (BoolExpr)(this->val);
+//}
 
 PTR(Val)  BoolVal::add_to(PTR(Val) other_val) {
     throw runtime_error("Cannot add to a boolean value");
@@ -63,13 +72,25 @@ PTR(Val) BoolVal::call(PTR(Val)  actual_arg) {
     throw std::runtime_error("Cannot call a bool");
 }
 
-FunVal::FunVal(std::string formal_arg, PTR(Expr) body) {
+std::string BoolVal::to_string() {
+    if (val) {
+        return "_true";
+    } else {
+        return "_false";
+    }
+}
+
+
+FunVal::FunVal(std::string formal_arg, PTR(Expr) body, PTR(Env) env) {
     this->formal_arg = formal_arg;
     this->body = body;
+    this->env = env;
 }
 
 PTR(Val) FunVal::call(PTR(Val) actual_arg) {
-    return this->body->subst(formal_arg, actual_arg->to_expr())->interp();
+//    return this->body->subst(formal_arg, actual_arg->to_expr())->interp();
+    // return body->interp(NEW(ExtendedEnv)(formal_arg, actual_arg, env));
+    return body->interp(NEW(ExtendedEnv) (formal_arg, actual_arg, env));
 }
 
 bool FunVal::equals(PTR(Val) other) {
@@ -81,11 +102,11 @@ bool FunVal::equals(PTR(Val) other) {
     }
 }
 
-PTR(Expr) FunVal::to_expr() {
-    PTR(FunExpr)funExpr = NEW(FunExpr)(this->formal_arg, this->body);
-
-    return funExpr;
-}
+//PTR(Expr) FunVal::to_expr() {
+//    PTR(FunExpr)funExpr = NEW(FunExpr)(this->formal_arg, this->body);
+//
+//    return funExpr;
+//}
 
 PTR(Val) FunVal::add_to(PTR(Val) other) {
     throw std::runtime_error("unable to add two functions");
@@ -93,4 +114,10 @@ PTR(Val) FunVal::add_to(PTR(Val) other) {
 
 PTR(Val) FunVal::mult_by(PTR(Val) other) {
     throw std::runtime_error("unable to multiply two functions");
+}
+
+std::string FunVal::to_string() {
+    std::string formal_arg;
+    PTR(Expr) body;
+    PTR(Env) env;
 }
