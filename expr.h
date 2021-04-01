@@ -15,6 +15,7 @@ using namespace std;
 
 class Val;
 class Env;
+class Expr;
 
 CLASS(Expr) {
 public:

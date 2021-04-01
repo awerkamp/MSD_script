@@ -120,4 +120,6 @@ std::string FunVal::to_string() {
     std::string formal_arg;
     PTR(Expr) body;
     PTR(Env) env;
+
+    return "[function]";
 }

@@ -849,7 +849,7 @@ PTR(Val) CallExpr::interp(PTR(Env) env) {
 }
 
 bool CallExpr::has_variable() {
-    throw std::runtime_error("invalied call");
+    throw std::runtime_error("invalid call");
 }
 
 //PTR(Expr)  CallExpr::subst(std::string sub, PTR(Expr) expr) {

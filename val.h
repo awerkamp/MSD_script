@@ -14,6 +14,7 @@
 #include <cstdio>
 
 class Expr;
+class Env;
 
 CLASS (Val) {
     public:

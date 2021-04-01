@@ -12,6 +12,8 @@
 #include <string>
 #include <sstream>
 
+class Val;
+
 class Env {
 
 public:
