@@ -33,7 +33,7 @@ public:
     } printStatus;
 //    void pretty_print(std::ostream &out);
 //    virtual void pretty_print_at(std::ostream &out, enum printStatus status) = 0;
-    std::string to_string(std::ostream &out);
+    std::string to_string();
 //    std::string to_string_pretty();
     static PTR(Expr) parse_num(std::istream &in);
     static void consume(std::istream &in, int expect);

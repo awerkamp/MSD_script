@@ -265,40 +265,36 @@ TEST_CASE("print") {
 
     PTR(Expr) num1 = NEW(NumExpr)(1);
     PTR(Expr) num2 = NEW(NumExpr)(2);
-//
-    std::ostream out(nullptr);
-    std::stringbuf str;
-    out.rdbuf(&str);
 
-    CHECK(((NEW(MultExpr)((NEW(AddExpr)(num1, num2)), NEW(NumExpr)(1)))->to_string(out)) == "((1+2)*1)");
-    CHECK(((NEW(MultExpr)((NEW(MultExpr)(num1, num2)), NEW(NumExpr)(1)))->to_string(out)) == "((1*2)*1)");
-    CHECK(((NEW(MultExpr)((NEW(NumExpr)(1)), NEW(MultExpr)(num1, num2)))->to_string(out)) == "(1*(1*2))");
-    CHECK(((NEW(AddExpr)((NEW(MultExpr)(num1, num2)), NEW(NumExpr)(1)))->to_string(out)) == "((1*2)+1)");
-    CHECK(((NEW(AddExpr)((NEW(AddExpr)(num1, num2)), NEW(MultExpr)(num1, num2)))->to_string(out)) == "((1+2)+(1*2))");
-    CHECK(((NEW(AddExpr)((NEW(AddExpr)(num1, num2)), NEW(AddExpr)(num1, num2)))->to_string(out)) == "((1+2)+(1+2))");
-    CHECK(((NEW(AddExpr)((NEW(AddExpr)(num1, num2)), NEW(AddExpr)(num1, num2)))->to_string(out)) == "((1+2)+(1+2))");
-    CHECK(((NEW(MultExpr)((NEW(MultExpr)(num1, num2)), NEW(MultExpr)(num1, num2)))->to_string(out)) == "((1*2)*(1*2))");
-    CHECK(((NEW(MultExpr)((NEW(AddExpr)(num1, num2)), NEW(AddExpr)(num1, num2)))->to_string(out)) == "((1+2)*(1+2))");
-    CHECK(((NEW(AddExpr)((NEW(MultExpr)(num1, num2)), NEW(MultExpr)(num1, num2)))->to_string(out)) == "((1*2)+(1*2))");
-    CHECK((NEW(VarExpr)("x"))->to_string(out) == "x");
+    CHECK(((NEW(MultExpr)((NEW(AddExpr)(num1, num2)), NEW(NumExpr)(1)))->to_string()) == "((1+2)*1)");
+    CHECK(((NEW(MultExpr)((NEW(MultExpr)(num1, num2)), NEW(NumExpr)(1)))->to_string()) == "((1*2)*1)");
+    CHECK(((NEW(MultExpr)((NEW(NumExpr)(1)), NEW(MultExpr)(num1, num2)))->to_string()) == "(1*(1*2))");
+    CHECK(((NEW(AddExpr)((NEW(MultExpr)(num1, num2)), NEW(NumExpr)(1)))->to_string()) == "((1*2)+1)");
+    CHECK(((NEW(AddExpr)((NEW(AddExpr)(num1, num2)), NEW(MultExpr)(num1, num2)))->to_string()) == "((1+2)+(1*2))");
+    CHECK(((NEW(AddExpr)((NEW(AddExpr)(num1, num2)), NEW(AddExpr)(num1, num2)))->to_string()) == "((1+2)+(1+2))");
+    CHECK(((NEW(AddExpr)((NEW(AddExpr)(num1, num2)), NEW(AddExpr)(num1, num2)))->to_string()) == "((1+2)+(1+2))");
+    CHECK(((NEW(MultExpr)((NEW(MultExpr)(num1, num2)), NEW(MultExpr)(num1, num2)))->to_string()) == "((1*2)*(1*2))");
+    CHECK(((NEW(MultExpr)((NEW(AddExpr)(num1, num2)), NEW(AddExpr)(num1, num2)))->to_string()) == "((1+2)*(1+2))");
+    CHECK(((NEW(AddExpr)((NEW(MultExpr)(num1, num2)), NEW(MultExpr)(num1, num2)))->to_string()) == "((1*2)+(1*2))");
+    CHECK((NEW(VarExpr)("x"))->to_string() == "x");
 
     // _let
-    CHECK(((NEW(LetExpr)("x", NEW(AddExpr)(num1, num2), num1))->to_string(out)) == "(_let x=(1+2) _in 1)");
-    CHECK(((NEW(LetExpr)("x", NEW(AddExpr)(num1 , num2), NEW(AddExpr)(NEW(VarExpr)("x") , num2)))->to_string(out)) == "(_let x=(1+2) _in (x+2))");
-    CHECK((((NEW(LetExpr)("x", NEW(AddExpr)(num1 , num2), NEW(AddExpr)(NEW(VarExpr)("x") , num2)))->to_string(out)) == "(_let x=(1+2) _in x+2)") == false);
+    CHECK(((NEW(LetExpr)("x", NEW(AddExpr)(num1, num2), num1))->to_string()) == "(_let x=(1+2) _in 1)");
+    CHECK(((NEW(LetExpr)("x", NEW(AddExpr)(num1 , num2), NEW(AddExpr)(NEW(VarExpr)("x") , num2)))->to_string()) == "(_let x=(1+2) _in (x+2))");
+    CHECK((((NEW(LetExpr)("x", NEW(AddExpr)(num1 , num2), NEW(AddExpr)(NEW(VarExpr)("x") , num2)))->to_string()) == "(_let x=(1+2) _in x+2)") == false);
 
     //BoolExpr
     PTR(BoolExpr) trueBoolExpr = NEW(BoolExpr)(true);
-    CHECK(((trueBoolExpr)->to_string(out)) == "_true");
+    CHECK(((trueBoolExpr)->to_string()) == "_true");
     PTR(BoolExpr) trueBoolExpr2 = NEW(BoolExpr)(false);
-    CHECK(((trueBoolExpr2)->to_string(out)) == "_false");
+    CHECK(((trueBoolExpr2)->to_string()) == "_false");
 
 
     PTR(IfExpr) ifExpr = NEW(IfExpr)(NEW(BoolExpr)(true), NEW(NumExpr)(3), NEW(NumExpr)(4));
-    CHECK(((ifExpr)->to_string(out)) == "(_if _true _then 3 _else 4)");
+    CHECK(((ifExpr)->to_string()) == "(_if _true _then 3 _else 4)");
 
     PTR(EqExpr) eqExpr = NEW(EqExpr)(NEW(NumExpr)(3), NEW(NumExpr)(3));
-    CHECK(((eqExpr)->to_string(out)) == "(3==3)");
+    CHECK(((eqExpr)->to_string()) == "(3==3)");
 
 }
 
@@ -398,11 +394,11 @@ TEST_CASE("call_expr") {
 //    out.rdbuf(&str);
 //
 ////    num1->pretty_print_at(out, Expr::print_group_none);
-////    CHECK(to_string(out) == "1");
+////    CHECK(to_string() == "1");
 //
 //    out.clear();
 //    (NEW(AddExpr)((NEW(AddExpr)(num1, num2)), NEW(AddExpr)(num1, num2)))->pretty_print_at(out, Expr::print_group_none);
-//    CHECK(to_string(out) == "(1 + 2) + 1 + 2");
+//    CHECK(to_string() == "(1 + 2) + 1 + 2");
 //
 //    CHECK((((NEW(LetExpr)("x", NEW(AddExpr)(num1 , num2), NEW(AddExpr)(NEW(VarExpr)("x") , num2)))->to_string_pretty()) == "(_let x=(1+2) _in x+2)") == false);
 //

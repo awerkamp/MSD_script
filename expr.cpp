@@ -132,7 +132,6 @@ PTR(Expr) Expr::parse_inner(std::istream &in) {
         } else if (key_word == "_let") {
             return parse_let(in);
         } else if (key_word == "_fun") {
-            cout << "In the FUN" << endl;
             return parse_fun(in);
         } else {
             throw runtime_error("Invalid input after underscore _ ");
@@ -141,7 +140,7 @@ PTR(Expr) Expr::parse_inner(std::istream &in) {
       return parse_var(in);
     } else if (c == '('){
         consume(in, '(');
-        c = in.peek();
+//        c = in.peek();
         PTR(Expr) e = parse_comparg(in);
         skip_whitespace(in);
         c = in.get();
@@ -158,120 +157,100 @@ PTR(Expr) Expr::parse_inner(std::istream &in) {
     }
 }
 
-string check_var(std::istream &in, string &var) {
-    if (in.peek() >= 65 && in.peek() <= 90 || in.peek() >= 97 && in.peek() <= 122 ) {
-        var = (char)in.get();
-        return var;
-    } else {
-        throw std::runtime_error("not a variable");
-    }
-}
-
-//PTR(Expr) parse_var(std::istream &in) {
-//    std::string name;
-//    while(1) {
-//        char c = in.peek();
-//        if (isalpha(c)) {
-//            Expr::consume(in, c);
-//            name = name + c;
-//        }
-//        else {
-//            break;
-//        }
+//string check_var(std::istream &in, string &var) {
+//    if (in.peek() >= 65 && in.peek() <= 90 || in.peek() >= 97 && in.peek() <= 122 ) {
+//        var = (char)in.get();
+//        return var;
+//    } else {
+//        throw std::runtime_error("not a variable");
 //    }
 //}
 
 
+
+
+PTR(Expr) parse_var(std::istream &in) {
+    std::string name;
+    while(1) {
+        char c = in.peek();
+        if (isalpha(c)) {
+            Expr::consume(in, c);
+            name = name + c;
+        }
+        else {
+            break;
+        }
+    }
+    return new (VarExpr)(name);
+}
+
+
 PTR(Expr) Expr::parse_if(std::istream &in) {
 
-//    consume(in, 'i');
-//    consume(in, 'f');
+    skip_whitespace(in);
+
+    PTR(Expr) ifExpr = parse_expr(in);
 
     skip_whitespace(in);
 
-    PTR(Expr) boolExpr = parse_expr(in);
-
-
-    skip_whitespace(in);
-
-
-    consume(in, '_');
-    consume(in, 't');
-    consume(in, 'h');
-    consume(in, 'e');
-    consume(in, 'n');
-
-//    for (char i : "_then") {
-//        consume (in, i);
-//    }
+    std::string thenString = parse_keyword(in);
+    if (thenString != "_then") {
+        throw std::runtime_error("missing thenstring");
+    }
 
     PTR(Expr) thenExpr = parse_expr(in);
 
-    skip_whitespace(in);
-
-    consume(in, '_');
-    consume(in, 'e');
-    consume(in, 'l');
-    consume(in, 's');
-    consume(in, 'e');
 
     skip_whitespace(in);
+
+    std::string elseString = parse_keyword(in);
+
+    if (elseString != "_else") {
+        throw std::runtime_error("Missing else string");
+    }
 
     PTR(Expr) elseExpr = parse_expr(in);
 
-    return NEW(IfExpr)(boolExpr, thenExpr, elseExpr);
+    return NEW(IfExpr)(ifExpr, thenExpr, elseExpr);
 }
 
 PTR(Expr) Expr::parse_true(std::istream &in) {
-
-//    consume(in, 't');
-//    consume(in, 'r');
-//    consume(in, 'u');
-//    consume(in, 'e');
-
     return NEW(BoolExpr)(true);
 }
 
 
 PTR(Expr) Expr::parse_false(std::istream &in) {
-
-//    consume(in, 'f');
-//    consume(in, 'a');
-//    consume(in, 'l');
-//    consume(in, 's');
-//    consume(in, 'e');
-
     return NEW(BoolExpr)(false);
 }
 
 
 PTR(Expr) Expr::parse_let(std::istream &in) {
 
-//    consume(in, 'l');
-//    consume(in, 'e');
-//    consume(in, 't');
     skip_whitespace(in);
 
-    string temp;
-    string var = check_var(in, temp);
+    PTR(Expr) var = parse_var(in);
+    string varString = var->to_string();
 
     skip_whitespace(in);
     consume(in, '=');
     skip_whitespace(in);
 
-    PTR(Expr) expr1 = parse_comparg(in);
-
+    PTR(Expr) rhs = parse_comparg(in);
 
     skip_whitespace(in);
-    consume(in, '_');
-    consume(in, 'i');
-    consume(in, 'n');
+    std::string inString = parse_keyword(in);
+
+    if (inString != "_in") {
+        throw std::runtime_error("Missing In");
+    }
     skip_whitespace(in);
 
-    PTR(Expr) expr2 = parse_comparg(in);
+    PTR(Expr) body = parse_comparg(in);
 
-    return NEW(LetExpr)(var, expr1, expr2);
+    return NEW(LetExpr)(varString, rhs, body);
 }
+
+
 
 PTR(Expr) Expr::parse_num(std::istream &in) {
     int n = 0;
@@ -307,7 +286,7 @@ PTR(Expr) Expr::parse_fun(std::istream &in) {
     std::stringbuf str;
     out.rdbuf(&str);
 
-    return NEW( FunExpr)(formal_arg->to_string(out), body);
+    return NEW( FunExpr)(formal_arg->to_string(), body);
 }
 
 void Expr::skip_whitespace(std::istream &in) {
@@ -328,7 +307,10 @@ void Expr::consume(std::istream &in, int expect) {
     }
 }
 
-std::string Expr::to_string(std::ostream &out) {
+std::string Expr::to_string() {
+    std::ostream out(nullptr);
+    std::stringbuf str;
+    out.rdbuf(&str);
     this->print(out);
     std::stringstream ss;
     ss << out.rdbuf();
@@ -469,7 +451,7 @@ bool EqExpr::has_variable() {
 //}
 
 void EqExpr::print(std::ostream &out) {
-    out << "(";   //Todo: Do these have parenthesis?
+    out << "(";
     this->lhs->print(out);
     out << "==";
     this->rhs->print(out);
