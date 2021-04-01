@@ -15,3 +15,6 @@ ExtendedEnv::ExtendedEnv(std::string name, PTR(Val) val, PTR(Env) rest) {
     this->rest = rest;
 }
 
+EmptyEnv::EmptyEnv() {
+
+}

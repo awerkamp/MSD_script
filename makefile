@@ -1,5 +1,5 @@
 INCS = cmdline.h
-OBJS = main.o use_arguments.o expr.o tests.o val.o
+OBJS = main.o use_arguments.o expr.o tests.o val.o env.o
 CXXFLAGS = --std=c++14 -O2
 executable: $(OBJS) ; $(CXX) $(CXXFLAGS) -o executable $(OBJS)
 .PHONY: test
