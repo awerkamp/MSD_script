@@ -15,7 +15,7 @@ using namespace std;
 
 class Val;
 class Env;
-class Expr;
+//class Expr;
 
 CLASS(Expr) {
 public:
@@ -25,7 +25,11 @@ public:
     virtual bool has_variable() = 0;
 //    virtual PTR(Expr) subst(std::string s, PTR(Expr) e) = 0;
     virtual void print(std::ostream &out) = 0;
-        enum printStatus {
+    virtual void step_interp() = 0;
+
+
+
+    enum printStatus {
         print_group_none,
         print_group_add,
         print_group_add_or_mult,
@@ -64,6 +68,7 @@ public:
 //    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
+    void step_interp() override;
 };
 
 class BoolExpr : public Expr {
@@ -76,6 +81,7 @@ public:
 //    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
+    void step_interp() override;
 };
 
 class EqExpr : public Expr {
@@ -89,6 +95,7 @@ public:
 //    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
+    void step_interp() override;
 };
 
 class AddExpr : public Expr {
@@ -102,6 +109,7 @@ public:
 //    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
+    void step_interp() override;
 };
 
 class MultExpr : public Expr {
@@ -115,6 +123,7 @@ public:
 //    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
+    void step_interp() override;
 };
 
 class VarExpr : public Expr {
@@ -127,6 +136,7 @@ public:
 //    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
+    void step_interp() override;
 };
 
 class LetExpr : public Expr {
@@ -141,6 +151,7 @@ public:
 //    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
+    void step_interp() override;
 };
 
 class IfExpr : public Expr {
@@ -155,6 +166,7 @@ public:
 //    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status);
+    void step_interp() override;
 };
 
 class FunExpr : public Expr {
@@ -168,6 +180,7 @@ public:
 //    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+    void step_interp() override;
 };
 
 class CallExpr : public Expr {
@@ -181,6 +194,7 @@ public:
 //    PTR(Expr) subst(std::string s, PTR(Expr) e) override;
     void print(std::ostream &out) override;
 //    void pretty_print_at(std::ostream &out, enum printStatus status) override;
+    void step_interp() override;
 };
 
 

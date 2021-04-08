@@ -10,6 +10,8 @@
 #include "val.h"
 #include "pointer.h"
 #include "env.h"
+#include "step.hpp"
+#include "cont.hpp"
 #include <iostream>
 #include <string>
 
@@ -34,7 +36,16 @@ void use_arguments(int argc, char **argv) {
                     exit(1);
                 }
                 isSeen = true;
-            } else {
+            } else if(argv[i] == std::string("--step")) {
+                PTR(Expr) y = Expr::parse_comparg(std::cin);
+                PTR(Val) v;
+                v = Step::interp_by_steps(y);
+                std::cout << v->to_string() << std::endl;
+                exit(0);
+            }
+
+
+            else {
                 std::cerr << "Argument --test has already been entered. Goodbye" << endl;
                 exit(1);
             }

@@ -6,6 +6,7 @@
 #include "expr.h"
 #include "env.h"
 #include <string>
+#include "step.hpp"
 
 //PTR(Expr) NumVal::to_expr() {
 //
@@ -44,6 +45,15 @@ std::string NumVal::to_string() {
     return str;
 }
 
+bool NumVal::is_true() {
+    throw std::runtime_error("Not a bool");
+}
+
+void NumVal::call_step(PTR(Val) actual_arg_val, PTR(Cont) rest) {
+    throw std::runtime_error("Can't call number");
+}
+
+
 
 //
 //PTR(Expr) BoolVal::to_expr() {
@@ -79,6 +89,16 @@ std::string BoolVal::to_string() {
         return "_false";
     }
 }
+
+bool BoolVal::is_true() {
+    return val;
+}
+
+void BoolVal::call_step(PTR(Val) actual_arg, PTR(Cont) rest) {
+    throw std::runtime_error("Can't call bool");
+}
+
+
 
 
 FunVal::FunVal(std::string formal_arg, PTR(Expr) body, PTR(Env) env) {
@@ -122,4 +142,15 @@ std::string FunVal::to_string() {
     PTR(Env) env;
 
     return "[function]";
+}
+
+bool FunVal::is_true() {
+    throw std::runtime_error("Not a value");
+}
+
+void FunVal::call_step(PTR(Val) actual_arg_val, PTR(Cont) rest) {
+    Step::mode = Step::interp_mode;
+    Step::expr = body;
+    Step::env = NEW(ExtendedEnv)(formal_arg, actual_arg_val, env);
+    Step::cont = rest;
 }

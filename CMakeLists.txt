@@ -13,5 +13,7 @@ add_executable(MSD_script
         expr.cpp
         val.cpp
         env.cpp
+        step.cpp
+        cont.cpp
         )
 

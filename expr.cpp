@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+#include "step.hpp"
 
 using namespace std;
 
@@ -352,6 +353,12 @@ bool NumExpr::equals(PTR(Expr) e) {
     return NEW(NumVal)(this->rep);
 }
 
+void NumExpr::step_interp() {
+    Step::mode = Step::continue_mode;
+    Step::val = NEW(NumVal)(rep);
+    Step::cont = Step::cont;
+}
+
 bool NumExpr::has_variable() {
     return false;
 }
@@ -392,6 +399,12 @@ bool BoolExpr::equals(PTR(Expr) e) {
 
 PTR(Val) BoolExpr::interp(PTR(Env) env) {
     return NEW(BoolVal)(this->rep);
+}
+
+void BoolExpr::step_interp() {
+    Step::mode = Step::continue_mode;
+    Step::val = NEW(BoolVal)(rep);
+    Step::cont = Step::cont;
 }
 
 bool BoolExpr::has_variable() {
@@ -442,6 +455,14 @@ PTR(Val) EqExpr::interp(PTR(Env) env) {
     }
 }
 
+void EqExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = lhs;
+    Step::cont = NEW(RightThenEqCont)(rhs, Step::env, Step::cont);
+}
+
+
+
 bool EqExpr::has_variable() {
     return (this->lhs->has_variable() || this->rhs->has_variable());
 }
@@ -489,6 +510,13 @@ bool AddExpr::equals(PTR(Expr) e) {
 
 PTR(Val) AddExpr::interp(PTR(Env) env) {
     return this->lhs->interp(env)->add_to(this->rhs->interp(env));
+}
+
+void AddExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = lhs;
+    Step::env = Step::env;
+    Step::cont = NEW(RightThenAddCont)(rhs, Step::env, Step::cont);
 }
 
 bool AddExpr::has_variable() {
@@ -540,6 +568,12 @@ PTR(Val) MultExpr::interp(PTR(Env) env) {
     return this->lhs->interp(env)->mult_by(this->rhs->interp(env));
 }
 
+void MultExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = lhs;
+    Step::cont = NEW(RightThenMultCont)(rhs, Step::env, Step::cont);
+}
+
 bool MultExpr::has_variable() {
     return (this->lhs->has_variable() || this->rhs->has_variable());
 }
@@ -587,6 +621,12 @@ bool VarExpr::equals(PTR(Expr) e) {
 
 PTR(Val) VarExpr::interp(PTR(Env) env) {
     return env->lookup(val);
+}
+
+void VarExpr::step_interp() {
+    Step::mode = Step::continue_mode;
+    Step::val = Step::env->lookup(val);
+    Step::cont = Step::cont;
 }
 
 bool VarExpr::has_variable() {
@@ -639,6 +679,13 @@ PTR(Val) LetExpr::interp(PTR(Env) env) {
     return body->interp(new_env);
 
 //    return this->body->subst(lhs, rhs_val->to_expr())->interp(env);
+}
+
+void LetExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = rhs;
+    Step::env = Step::env;
+    Step::cont = NEW(LetBodyCont)(lhs, body, Step::env, Step::cont);
 }
 
 bool LetExpr::has_variable() {
@@ -735,6 +782,15 @@ PTR(Val) IfExpr::interp(PTR(Env) env) {
     }
 }
 
+void IfExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = condition;
+    Step::env = Step::env;
+    Step::cont = NEW(IfBranchCont)(statement1, statement2, Step::env, Step::cont);
+}
+
+
+
 bool IfExpr::has_variable() {
     return this->condition->has_variable() || this->statement1->has_variable() || this->statement2->has_variable();
 }
@@ -777,6 +833,12 @@ bool FunExpr::equals(PTR(Expr) e) {
 
 PTR(Val) FunExpr::interp(PTR(Env) env) {
     return NEW(FunVal) (formal_arg, body, env);
+}
+
+void FunExpr::step_interp() {
+    Step::mode = Step::continue_mode;
+    Step::val = NEW(FunVal)(formal_arg, body, Step::env);
+    Step::cont = Step::cont;
 }
 
 bool FunExpr::has_variable() {
@@ -828,6 +890,12 @@ bool CallExpr::equals(PTR(Expr) e) {
 
 PTR(Val) CallExpr::interp(PTR(Env) env) {
     return to_be_called->interp(env)->call(actual_arg->interp(env));
+}
+
+void CallExpr::step_interp() {
+    Step::mode = Step::interp_mode;
+    Step::expr = to_be_called;
+    Step::cont = NEW(ArgThenCallCont)(actual_arg, Step::env, Step::cont);
 }
 
 bool CallExpr::has_variable() {
