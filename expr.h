@@ -27,8 +27,6 @@ public:
     virtual void print(std::ostream &out) = 0;
     virtual void step_interp() = 0;
 
-
-
     enum printStatus {
         print_group_none,
         print_group_add,

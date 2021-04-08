@@ -6,6 +6,7 @@
 #include "expr.h"
 #include "val.h"
 #include "pointer.h"
+#include "step.hpp"
 
 TEST_CASE("equals") {
 
@@ -298,27 +299,6 @@ TEST_CASE("print") {
 
 }
 
-TEST_CASE("fun_expr") {
-//    _let f = _fun (x) x
-//    _in  f(2)
-    //equals
-    PTR(FunExpr) fun1 = NEW(FunExpr)("x", NEW(VarExpr)("x"));
-    PTR(FunExpr) fun2 = NEW(FunExpr)("y", NEW(VarExpr)(
-            "y"));// creating new Num object to assign memory for that object Making a pointer to the Expr class
-    //NumExpr* num = NEW(NumExpr)(2);
-    CHECK(fun1->equals(fun2) == false);
-    //equals
-    PTR(FunExpr) fun3 = NEW(FunExpr)("x", NEW(VarExpr)(
-            "x"));// creating new Num object to assign memory for that object Making a pointer to the Expr class
-    //NumExpr* num = NEW(NumExpr)(2);
-    CHECK(fun1->equals(fun3) == true);
-    ////equals NULL
-    PTR(FunExpr) fun4 = NULL;
-    CHECK(fun1->equals(fun4) == false);
-    //Has_Variable
-    //Subst
-//    CHECK(fun1->subst("x", fun1)->equals(NEW(FunExpr)("x", NEW(VarExpr)("x"))));
-}
 
 
 TEST_CASE("call_expr") {
@@ -450,7 +430,49 @@ TEST_CASE("parse_test") {
 TEST_CASE("To Expr") {
 
     PTR(BoolVal) trueBoolExpr = NEW(BoolVal)(true);
-//    CHECK(trueBoolExpr->to_expr()->equals(NEW(BoolExpr)(true)));
     PTR(BoolVal) trueBoolExpr2 = NEW(BoolVal)(false);
-//    CHECK(trueBoolExpr2->to_expr()->equals(NEW(BoolExpr)(true)) == false);
+}
+
+TEST_CASE("fun_expr_new") {
+
+    FunExpr *fun1 = new FunExpr("x", new VarExpr("x"));
+    FunExpr *fun2 = new FunExpr("y", new VarExpr(
+            "y"));
+    CHECK(fun1->equals(fun2) == false);
+    FunExpr *fun3 = new FunExpr("x", new VarExpr(
+            "x"));
+    CHECK(fun1->equals(fun3) == true);
+    FunExpr *fun4 = NULL;
+    CHECK(fun1->equals(fun4) == false);
+    std::stringstream empty_string_string("");
+    fun1->print(empty_string_string);
+
+    CHECK((empty_string_string.str() == "(_fun (x) x) "));
+}
+
+
+TEST_CASE("Continuations") {
+
+    CHECK( Step::interp_by_steps(AddExpr::parse_str("1"))->equals(NEW(NumVal)(1)) ); // todo: Add not working properly
+    CHECK( Step::interp_by_steps(MultExpr::parse_str("5*2"))->equals(NEW(NumVal)(10)) );
+    CHECK( Step::interp_by_steps(EqExpr::parse_str("5 == 5"))->equals(NEW(BoolVal(true))));
+    CHECK( Step::interp_by_steps(BoolExpr::parse_str("_false"))->equals(NEW(BoolVal(false))));
+    CHECK( Step::interp_by_steps(BoolExpr::parse_str("_true"))->equals(NEW(BoolVal(true))));
+//    CHECK( Step::interp_by_steps(LetExpr::parse_str("_let x = 5 _in x"))->equals(NEW(NumVal(5))));
+
+//    out << "(_let ";
+//    out << lhs;
+//    out << "=";
+//    this->rhs->print(out);
+//    out << " _in ";
+//    this->body->print(out);
+//    out << ")";
+
+//    CHECK( Step::interp_by_steps(VarExpr::parse_str("x"))->equals(NEW(BoolVal(true))));
+//    CHECK( Step::interp_by_steps(VarExpr::parse_str("x"))->equals("x"));
+
+
+
+
+
 }
