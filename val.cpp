@@ -16,12 +16,20 @@
 PTR(Val)  NumVal::add_to(PTR(Val) other_val) {
     PTR(NumVal)other_num = CAST(NumVal)(other_val);
     if (other_num == NULL) throw std::runtime_error("add of non-number");
+    unsigned long long n = (unsigned long long) val + (unsigned long long) other_num->val;
+    if (n > 2147483647) {
+        throw runtime_error("Too large of numbers being added together");
+    }
     return NEW(NumVal)(val + other_num->val); // todo: not sure if this is right https://www.youtube.com/watch?v=Go5LJu-X_F0&list=PLbdXd8eufjyUWQw3Mqb3SNQEkdjd_S_rB&index=6
 }
 
 PTR(Val)  NumVal::mult_by(PTR(Val) other_val) {
     PTR(NumVal) other_num = CAST(NumVal)(other_val);
     if (other_num == NULL) throw std::runtime_error("multiply of non-number");
+    unsigned long long n = (unsigned long long) val * (unsigned long long) other_num->val;
+    if (n > 2147483647) {
+        throw runtime_error("Too large of numbers being multiplied together");
+    }
     return NEW (NumVal)(val * other_num->val);
 }
 
@@ -79,7 +87,7 @@ bool BoolVal::equals(PTR(Val)  e) {
 }
 
 PTR(Val) BoolVal::call(PTR(Val)  actual_arg) {
-    throw std::runtime_error("Cannot call a bool");
+    throw std::runtime_error("Cannot call bool");
 }
 
 std::string BoolVal::to_string() {

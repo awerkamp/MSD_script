@@ -238,7 +238,7 @@ PTR(Expr) Expr::parse_let(std::istream &in) {
 
     PTR(Expr) rhs = parse_comparg(in);
 
-    skip_whitespace(in);
+//    skip_whitespace(in);
     std::string inString = parse_keyword(in);
 
     if (inString != "_in") {
@@ -264,7 +264,12 @@ PTR(Expr) Expr::parse_num(std::istream &in) {
         int c = in.peek();
         if (isdigit(c)) {
             consume(in, c);
-            n = n*10 + (c - '0');
+            unsigned long long test = n;
+
+            n = (unsigned) n*10 + (c - '0');
+            if (n < 0) {
+                throw runtime_error("Number too large");
+            }
         } else
             break;
     }

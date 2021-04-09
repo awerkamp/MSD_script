@@ -87,6 +87,7 @@ TEST_CASE("equals") {
     CHECK(ifExp3->equals(NEW(IfExpr)(NEW(BoolExpr)(true), num1, num3)) == false);
 
 //    CHECK_THROWS_AS(NEW(IfExpr)(NEW(NumExpr)(1), NEW(NumExpr)(2), NEW(NumExpr)(3)), exception);
+
 }
 
 TEST_CASE("Interp") {
@@ -301,25 +302,6 @@ TEST_CASE("print") {
 
 
 
-TEST_CASE("call_expr") {
-//    (_fun (x) x)(10)
-    //equals
-    PTR(CallExpr) call1 =  NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("x")), NEW(NumExpr)(10));
-    PTR(CallExpr) call2 =  NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("x")), NEW(NumExpr)(10));
-    PTR(CallExpr) call3 = NULL;
-    PTR(CallExpr) call4 =  NEW(CallExpr)(NEW(FunExpr)("x", NEW(VarExpr)("x")), NEW(NumExpr)(11));
-    CHECK(call1->equals(call3) == false);
-    CHECK(call1->equals(call2) == true);
-    CHECK(call1->equals(call4) == false);
-    //Has_Variable
-    //print:
-    std::stringstream empty_string_string(""); // empty but gets set to fun1
-    call1->print(empty_string_string);
-    //_fun (x) x
-    //std::cout << empty_string_string.str() << std::endl;
-//    CHECK( (empty_string_string.str() == "(_fun (x) x) (10)") );
-}
-
 
 //TEST_CASE("pretty_print") {
 //
@@ -458,7 +440,27 @@ TEST_CASE("Continuations") {
     CHECK( Step::interp_by_steps(EqExpr::parse_str("5 == 5"))->equals(NEW(BoolVal(true))));
     CHECK( Step::interp_by_steps(BoolExpr::parse_str("_false"))->equals(NEW(BoolVal(false))));
     CHECK( Step::interp_by_steps(BoolExpr::parse_str("_true"))->equals(NEW(BoolVal(true))));
-//    CHECK( Step::interp_by_steps(LetExpr::parse_str("_let x = 5 _in x"))->equals(NEW(NumVal(5))));
+    CHECK( Step::interp_by_steps(NumExpr::parse_str("1"))->equals(NEW(NumVal(1))));
+    CHECK(Step::interp_by_steps(IfExpr::parse_str("(_if _true _then 3 _else 4)"))->equals(NEW(NumVal)(3)));
+
+//    CHECK(Step::interp_by_steps(FunExpr::parse_str("(_fun (x) x) (10)"))->equals(NEW(NumVal(10))));
+//    CHECK( Step::interp_by_steps(Expr::parse_str("_let x = 4 _in x + 5"))->equals(NEW(NumVal(5))));
+//    CHECK( Expr::parse_str("_let x = 4 _in x + 5")->equals(NEW(LetExpr)("x", NEW(NumExpr)(4), NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(5)))));
+
+//    CHECK( Step::interp_by_steps(VarExpr::parse_str("x"))->equals("x"));
+
+//    VarExpr* var = NEW (VarExpr)("x");
+
+    CHECK( Step::interp_by_steps(BoolExpr::parse_str("_true"))->equals(NEW(BoolVal(true))));
+
+
+
+
+
+
+//    CHECK( Step::interp_by_steps(Expr::parse_str("_let x = 4 _in x + 5"))->equals(NEW(NumVal(9))));
+
+
 
 //    out << "(_let ";
 //    out << lhs;
@@ -470,9 +472,33 @@ TEST_CASE("Continuations") {
 
 //    CHECK( Step::interp_by_steps(VarExpr::parse_str("x"))->equals(NEW(BoolVal(true))));
 //    CHECK( Step::interp_by_steps(VarExpr::parse_str("x"))->equals("x"));
+}
+
+TEST_CASE("call_expr") {
+
+    PTR(CallExpr) call1 =  NEW (CallExpr)(NEW (FunExpr)("x", NEW (VarExpr)("x")), NEW (NumExpr)(10));
+    PTR(CallExpr) call2 =  NEW (CallExpr)(NEW (FunExpr)("x", NEW (VarExpr)("x")), NEW (NumExpr)(10));
+    PTR(CallExpr) call3 = NULL;
+    PTR(CallExpr) call4 =  NEW (CallExpr)(NEW (FunExpr)("x", NEW (VarExpr)("x")), NEW (NumExpr)(11));
+    CHECK(call1->equals(call3) == false);
+    CHECK(call1->equals(call2) == true);
+    CHECK(call1->equals(call4) == false);
+    CHECK_THROWS_WITH( call1->has_variable(), "invalid call" );
+    std::stringstream empty_string_string("");
+    call1->print(empty_string_string);
+    CHECK( (empty_string_string.str() == "(_fun (x) x) (10)") );
+    PTR(Expr) num1 = NEW (NumExpr)(1);
+    PTR(VarExpr) y = NEW (VarExpr)("y");
+    PTR(Expr) fun1 = NEW (FunExpr)("y", NEW (AddExpr)(y, num1));
+    PTR(Expr) call_expr1 = NEW (CallExpr) (fun1, num1);
+    CHECK(call_expr1->interp(NEW(ExtendedEnv)("y", NEW(NumVal)(1), NEW(EmptyEnv)()))->equals(NEW (NumVal)(2)));
+}
 
 
-
-
-
+TEST_CASE("fan_val") {
+    CHECK_THROWS_WITH((NEW (BoolVal)(true))->call(NULL),"Cannot call bool");
+    CHECK((NEW (FunVal)("x", NEW (NumExpr)(1), NEW(EmptyEnv)()))->equals(NEW (FunVal)("x", NEW (NumExpr)(1), NEW(EmptyEnv)())));
+    PTR(Expr) n1 = NEW (NumExpr)(1);
+    PTR(Val) num1 = NEW (NumVal)(1);
+    CHECK((NEW (FunVal)("y", n1,NEW(EmptyEnv)()))->call(num1)->equals(NEW (NumVal)(1)));
 }

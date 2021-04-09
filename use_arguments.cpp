@@ -51,8 +51,9 @@ void use_arguments(int argc, char **argv) {
             }
         } else if (std::string(argv[i]) == "--interp") {
 
-                PTR(Expr) y = Expr::parse_expr(std::cin);  // todo: changed to parse_expr
-//                PTR(Expr) y = Expr::parse_comparg(std::cin);
+//                PTR(Expr) y = Expr::parse_expr(std::cin);  // todo: changed to parse_expr
+                PTR(Expr) y = Expr::parse_comparg(std::cin);
+
                 PTR(Val) v = y->interp(Env::empty);
 //                e = v->to_expr();
 
