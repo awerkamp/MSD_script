@@ -442,6 +442,18 @@ TEST_CASE("Continuations") {
     CHECK( Step::interp_by_steps(BoolExpr::parse_str("_true"))->equals(NEW(BoolVal(true))));
     CHECK( Step::interp_by_steps(NumExpr::parse_str("1"))->equals(NEW(NumVal(1))));
     CHECK(Step::interp_by_steps(IfExpr::parse_str("(_if _true _then 3 _else 4)"))->equals(NEW(NumVal)(3)));
+    CHECK(Step::interp_by_steps(IfExpr::parse_str("(_if 4==5 _then 3 _else 4)"))->equals(NEW(NumVal)(4)));
+
+
+//    PTR(LetExpr) let1 = NEW(LetExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(1), NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(1)));
+
+    CHECK( Step::interp_by_steps(AddExpr::parse_str("_let x = 7 _in x + 4"))->equals(NEW(NumVal)(11)));
+
+    CHECK(AddExpr::parse_str("test")->equals(NEW (VarExpr)("test")));
+
+    PTR(CallExpr) callExpr = NEW(CallExpr)(NEW(FunExpr)("x", NEW(AddExpr)(NEW(VarExpr)("x"), NEW(NumExpr)(1))), NEW(NumExpr)(10));
+    CHECK(Step::interp_by_steps(callExpr)->equals(NEW(NumVal)(11)) == true);
+    CHECK_THROWS(Cont::done->step_continue(), "error in doneCont");
 
 //    CHECK(Step::interp_by_steps(FunExpr::parse_str("(_fun (x) x) (10)"))->equals(NEW(NumVal(10))));
 //    CHECK( Step::interp_by_steps(Expr::parse_str("_let x = 4 _in x + 5"))->equals(NEW(NumVal(5))));

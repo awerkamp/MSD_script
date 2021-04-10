@@ -9,7 +9,7 @@ PTR(Cont) Cont::done = NEW(DoneCont)();
 DoneCont::DoneCont() { }
 
 void DoneCont::step_continue() {
-  throw std::runtime_error("can't continue done");
+  throw std::runtime_error("error in doneCont");
 }
 
 void IfBranchCont::step_continue() {
@@ -42,6 +42,7 @@ LetBodyCont::LetBodyCont(std::string var, PTR(Expr) body, PTR(Env) env, PTR(Cont
     this->var = var;
     this->body = body;
     this->env = env;
+    this->rest = rest;
 }
 
 void ArgThenCallCont::step_continue() {
@@ -76,7 +77,7 @@ void NegateCont::step_continue() {
     Step::cont = rest;
 }
 
-RightThenAddCont::RightThenAddCont(PTR(Expr) rhs, PTR(Env) env, PTR(Cont) retst) {
+RightThenAddCont::RightThenAddCont(PTR(Expr) rhs, PTR(Env) env, PTR(Cont) rest) {
     this->rhs = rhs;
     this->env = env;
     this->rest = rest;

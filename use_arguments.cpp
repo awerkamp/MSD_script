@@ -36,19 +36,18 @@ void use_arguments(int argc, char **argv) {
                     exit(1);
                 }
                 isSeen = true;
-            } else if(argv[i] == std::string("--step")) {
-                PTR(Expr) y = Expr::parse_comparg(std::cin);
-                PTR(Val) v;
-                v = Step::interp_by_steps(y);
-                std::cout << v->to_string() << std::endl;
-                exit(0);
             }
-
-
             else {
                 std::cerr << "Argument --test has already been entered. Goodbye" << endl;
                 exit(1);
             }
+        } else if(std::string(argv[i]) == std::string("--step")) {
+            PTR(Expr)y = Expr::parse_comparg(std::cin);
+            PTR(Val)v;
+            v = Step::interp_by_steps(y);
+            std::cout << v->to_string() << std::endl;
+            exit(0);
+
         } else if (std::string(argv[i]) == "--interp") {
 
 //                PTR(Expr) y = Expr::parse_expr(std::cin);  // todo: changed to parse_expr

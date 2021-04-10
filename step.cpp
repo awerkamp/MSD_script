@@ -29,8 +29,10 @@ PTR(Val) Step::interp_by_steps(PTR(Expr) e) {
     else {
       if (Step::cont == Cont::done)
         return Step::val;
-      else
-      Step::cont->step_continue();
+      else {
+          Step::cont->step_continue();
+      }
+
     }
   }
 }
