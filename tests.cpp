@@ -417,14 +417,14 @@ TEST_CASE("To Expr") {
 
 TEST_CASE("fun_expr_new") {
 
-    FunExpr *fun1 = new FunExpr("x", new VarExpr("x"));
-    FunExpr *fun2 = new FunExpr("y", new VarExpr(
+    PTR(FunExpr) fun1= NEW(FunExpr)("x", NEW(VarExpr)("x"));
+    PTR(FunExpr) fun2= NEW(FunExpr)("y", NEW(VarExpr)(
             "y"));
     CHECK(fun1->equals(fun2) == false);
-    FunExpr *fun3 = new FunExpr("x", new VarExpr(
+    PTR(FunExpr) fun3 = NEW(FunExpr)("x", NEW(VarExpr)(
             "x"));
     CHECK(fun1->equals(fun3) == true);
-    FunExpr *fun4 = NULL;
+    PTR(FunExpr) fun4 = NULL;
     CHECK(fun1->equals(fun4) == false);
     std::stringstream empty_string_string("");
     fun1->print(empty_string_string);
@@ -437,10 +437,10 @@ TEST_CASE("Continuations") {
 
     CHECK( Step::interp_by_steps(AddExpr::parse_str("1"))->equals(NEW(NumVal)(1)) ); // todo: Add not working properly
     CHECK( Step::interp_by_steps(MultExpr::parse_str("5*2"))->equals(NEW(NumVal)(10)) );
-    CHECK( Step::interp_by_steps(EqExpr::parse_str("5 == 5"))->equals(NEW(BoolVal(true))));
-    CHECK( Step::interp_by_steps(BoolExpr::parse_str("_false"))->equals(NEW(BoolVal(false))));
-    CHECK( Step::interp_by_steps(BoolExpr::parse_str("_true"))->equals(NEW(BoolVal(true))));
-    CHECK( Step::interp_by_steps(NumExpr::parse_str("1"))->equals(NEW(NumVal(1))));
+    CHECK( Step::interp_by_steps(EqExpr::parse_str("5 == 5"))->equals(NEW(BoolVal)(true)));
+    CHECK( Step::interp_by_steps(BoolExpr::parse_str("_false"))->equals(NEW(BoolVal)(false)));
+    CHECK( Step::interp_by_steps(BoolExpr::parse_str("_true"))->equals(NEW(BoolVal)(true)));
+    CHECK( Step::interp_by_steps(NumExpr::parse_str("1"))->equals(NEW(NumVal)(1)));
     CHECK(Step::interp_by_steps(IfExpr::parse_str("(_if _true _then 3 _else 4)"))->equals(NEW(NumVal)(3)));
     CHECK(Step::interp_by_steps(IfExpr::parse_str("(_if 4==5 _then 3 _else 4)"))->equals(NEW(NumVal)(4)));
 
@@ -463,7 +463,7 @@ TEST_CASE("Continuations") {
 
 //    VarExpr* var = NEW (VarExpr)("x");
 
-    CHECK( Step::interp_by_steps(BoolExpr::parse_str("_true"))->equals(NEW(BoolVal(true))));
+    CHECK( Step::interp_by_steps(BoolExpr::parse_str("_true"))->equals(NEW(BoolVal)(true)));
 
 
 
@@ -484,6 +484,23 @@ TEST_CASE("Continuations") {
 
 //    CHECK( Step::interp_by_steps(VarExpr::parse_str("x"))->equals(NEW(BoolVal(true))));
 //    CHECK( Step::interp_by_steps(VarExpr::parse_str("x"))->equals("x"));
+}
+
+
+
+TEST_CASE("Val") {
+
+    PTR(NumVal) num1 = NEW(NumVal)(34);
+    PTR(NumVal) num2 = NEW(NumVal)(50);
+    CHECK_THROWS(num1->call(num2), "Cannot call a number");
+
+//    CHECK_THROWS(num1->is_true(), "Not a bool");
+//    PTR(CallCont) = new CallCont();
+//    CHECK_THROWS(num1->call_step(num2, num1), "Can't call number");
+
+
+
+
 }
 
 TEST_CASE("call_expr") {

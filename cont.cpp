@@ -87,6 +87,7 @@ void RightThenAddCont::step_continue() {
     Step::mode = Step::interp_mode;
     Step::expr = rhs;
     Step::cont = NEW(AddCont)(Step::val, rest);
+    Step::env = env;
 }
 
 AddCont::AddCont(PTR(Val) lhs_val, PTR(Cont) rest) {
@@ -109,6 +110,7 @@ void RightThenMultCont::step_continue() {
     Step::mode = Step::interp_mode;
     Step::expr = rhs;
     Step::cont = NEW(MultCont)(Step::val, rest);
+    Step::env = env;
 }
 
 void MultCont::step_continue() {
@@ -132,6 +134,7 @@ void RightThenEqCont::step_continue() {
     Step::mode = Step::interp_mode;
     Step::expr = rhs;
     Step::cont = NEW(EqCont)(Step::val, cont);
+    Step::env = env;
 }
 
 void EqCont::step_continue() {

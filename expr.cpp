@@ -182,7 +182,7 @@ PTR(Expr) parse_var(std::istream &in) {
             break;
         }
     }
-    return new (VarExpr)(name);
+    return NEW(VarExpr)(name);
 }
 
 

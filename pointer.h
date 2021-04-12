@@ -7,7 +7,7 @@
 
 #include <memory>
 
-#define USE_PLAIN_POINTERS 1
+#define USE_PLAIN_POINTERS 0
 
 // leaks -atExit -- ./executable --interp
 // 1 + 2
