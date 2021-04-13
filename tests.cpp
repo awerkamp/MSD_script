@@ -409,6 +409,34 @@ TEST_CASE("parse_test") {
 }
 
 
+TEST_CASE("To String") {
+
+    PTR(NumVal) numVal = NEW(NumVal)(3);
+    CHECK(numVal->to_string() == "3");
+
+    PTR(BoolVal) boolVal = NEW(BoolVal)(3);
+    CHECK(boolVal->to_string() == "_true");
+
+    PTR(FunVal) funVal = NEW (FunVal)("x", NEW (NumExpr)(1), NEW(EmptyEnv)());
+    CHECK(funVal->to_string() == "[function]");
+
+
+}
+
+
+TEST_CASE("Add To") {
+
+    PTR(FunExpr) fun1= NEW(FunExpr)("x", NEW(VarExpr)("x"));
+    PTR(FunExpr) fun2= NEW(FunExpr)("y", NEW(VarExpr)(
+            "y"));
+    CHECK_THROWS(fun1)
+
+
+
+}
+
+
+
 TEST_CASE("To Expr") {
 
     PTR(BoolVal) trueBoolExpr = NEW(BoolVal)(true);

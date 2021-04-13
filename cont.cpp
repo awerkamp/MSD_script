@@ -67,15 +67,15 @@ CallCont::CallCont(PTR(Val) to_be_called_val, PTR(Cont) rest) {
     this->rest = rest;
 }
 
-NegateCont::NegateCont(PTR(Cont) rest) {
-    this->rest = rest;
-}
-
-void NegateCont::step_continue() {
-    Step::mode = Step::continue_mode;
-    Step::val = Step::val;
-    Step::cont = rest;
-}
+//NegateCont::NegateCont(PTR(Cont) rest) {
+//    this->rest = rest;
+//}
+//
+//void NegateCont::step_continue() {
+//    Step::mode = Step::continue_mode;
+//    Step::val = Step::val;
+//    Step::cont = rest;
+//}
 
 RightThenAddCont::RightThenAddCont(PTR(Expr) rhs, PTR(Env) env, PTR(Cont) rest) {
     this->rhs = rhs;

@@ -138,11 +138,11 @@ public:
     void step_continue();
 };
 
-class NegateCont : public Cont {
-public:
-    PTR(Cont) rest;
-    NegateCont(PTR(Cont) rest);
-    void step_continue();
-};
+//class NegateCont : public Cont {
+//public:
+//    PTR(Cont) rest;
+//    NegateCont(PTR(Cont) rest);
+//    void step_continue();
+//};
 
 #endif /* cont_hpp */
