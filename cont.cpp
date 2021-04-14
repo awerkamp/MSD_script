@@ -34,8 +34,8 @@ IfBranchCont::IfBranchCont(PTR(Expr) then_part, PTR(Expr) else_part, PTR(Env) en
 void LetBodyCont::step_continue() {
     Step::mode = Step::interp_mode;
     Step::expr = body;
-    Step::env = NEW(ExtendedEnv)(var, Step::val, env);
     Step::cont = rest;
+    Step::env = NEW(ExtendedEnv)(var, Step::val, env);
 }
 
 LetBodyCont::LetBodyCont(std::string var, PTR(Expr) body, PTR(Env) env, PTR(Cont) rest) {
@@ -48,8 +48,8 @@ LetBodyCont::LetBodyCont(std::string var, PTR(Expr) body, PTR(Env) env, PTR(Cont
 void ArgThenCallCont::step_continue() {
     Step::mode = Step::interp_mode;
     Step::expr = actual_arg;
-    Step::env = env;
     Step::cont = NEW(CallCont)(Step::val, rest);
+    Step::env = env;
 }
 
 ArgThenCallCont::ArgThenCallCont(PTR(Expr) actual_arg, PTR(Env) env, PTR(Cont) rest) {
@@ -86,8 +86,8 @@ RightThenAddCont::RightThenAddCont(PTR(Expr) rhs, PTR(Env) env, PTR(Cont) rest) 
 void RightThenAddCont::step_continue() {
     Step::mode = Step::interp_mode;
     Step::expr = rhs;
-    Step::cont = NEW(AddCont)(Step::val, rest);
     Step::env = env;
+    Step::cont = NEW(AddCont)(Step::val, rest);
 }
 
 AddCont::AddCont(PTR(Val) lhs_val, PTR(Cont) rest) {
@@ -109,8 +109,8 @@ RightThenMultCont::RightThenMultCont(PTR(Expr) rhs, PTR(Env) env, PTR(Cont) rest
 void RightThenMultCont::step_continue() {
     Step::mode = Step::interp_mode;
     Step::expr = rhs;
-    Step::cont = NEW(MultCont)(Step::val, rest);
     Step::env = env;
+    Step::cont = NEW(MultCont)(Step::val, rest);
 }
 
 void MultCont::step_continue() {
@@ -133,8 +133,8 @@ RightThenEqCont::RightThenEqCont(PTR(Expr) rhs, PTR(Env) env, PTR(Cont) cont) {
 void RightThenEqCont::step_continue() {
     Step::mode = Step::interp_mode;
     Step::expr = rhs;
-    Step::cont = NEW(EqCont)(Step::val, cont);
     Step::env = env;
+    Step::cont = NEW(EqCont)(Step::val, cont);
 }
 
 void EqCont::step_continue() {

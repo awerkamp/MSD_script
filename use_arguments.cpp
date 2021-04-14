@@ -8,10 +8,10 @@
 #include "catch.hpp"
 #include "expr.h"
 #include "val.h"
-#include "pointer.h"
-#include "env.h"
+//#include "pointer.h"
+//#include "env.h"
 #include "step.hpp"
-#include "cont.hpp"
+//#include "cont.hpp"
 #include <iostream>
 #include <string>
 
@@ -28,6 +28,7 @@ void use_arguments(int argc, char **argv) {
             cout << "--test" << endl;
             cout << "--interp" << endl;
             cout << "--print" << endl;
+            cout << "--step" << endl;
         } else if (std::string(argv[i]) == "--test" ) {
             if (!isSeen) {
                 int returnStatus = Catch::Session().run(1,argv);

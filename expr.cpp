@@ -84,6 +84,22 @@ PTR(Expr) Expr::parse_var(std::istream &in) {
     return NEW(VarExpr)(var);
 }
 
+//
+//PTR(Expr) parse_var(std::istream &in) {
+//    std::string name;
+//    while(1) {
+//        char c = in.peek();
+//        if (isalpha(c)) {
+//            Expr::consume(in, c);
+//            name = name + c;
+//        }
+//        else {
+//            break;
+//        }
+//    }
+//    return NEW(VarExpr)(name);
+//}
+
 PTR(Expr) Expr::parse_multicand(std::istream &in) {
     PTR(Expr) expr = parse_inner(in);
     while (in.peek() == '(') {
@@ -166,24 +182,12 @@ PTR(Expr) Expr::parse_inner(std::istream &in) {
 //        throw std::runtime_error("not a variable");
 //    }
 //}
+///
 
 
 
 
-PTR(Expr) parse_var(std::istream &in) {
-    std::string name;
-    while(1) {
-        char c = in.peek();
-        if (isalpha(c)) {
-            Expr::consume(in, c);
-            name = name + c;
-        }
-        else {
-            break;
-        }
-    }
-    return NEW(VarExpr)(name);
-}
+
 
 
 PTR(Expr) Expr::parse_if(std::istream &in) {
@@ -191,6 +195,11 @@ PTR(Expr) Expr::parse_if(std::istream &in) {
     skip_whitespace(in);
 
     PTR(Expr) ifExpr = parse_expr(in);
+
+    PTR(NumExpr) numExpr = CAST(NumExpr)(ifExpr);
+    if (numExpr != nullptr) {
+        throw std::runtime_error("If Conditional should not be a number");
+    }
 
     skip_whitespace(in);
 

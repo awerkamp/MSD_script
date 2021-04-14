@@ -1,8 +1,8 @@
 #include "step.hpp"
-#include "expr.h"
-#include "cont.hpp"
-#include "pointer.h"
-#include "cont.hpp"
+//#include "expr.h"
+//#include "cont.hpp"
+//#include "pointer.h"
+//#include "cont.hpp"
 
 class Val;
 class Cont;
@@ -32,7 +32,6 @@ PTR(Val) Step::interp_by_steps(PTR(Expr) e) {
       else {
           Step::cont->step_continue();
       }
-
     }
   }
 }
