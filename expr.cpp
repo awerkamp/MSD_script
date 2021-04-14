@@ -10,6 +10,9 @@
 #include <iostream>
 #include <sstream>
 #include "step.hpp"
+#include "pointer.h"
+//
+
 
 using namespace std;
 
@@ -318,7 +321,7 @@ void Expr::consume(std::istream &in, int expect) {
     if (c != expect) {
         cout << "this is what trying to consume" << c << endl;
         cout << "this is what was expected" << expect << endl;
-        throw std::runtime_error("consume mismatch");
+//        throw std::runtime_error("consume mismatch");
     }
 }
 
@@ -705,7 +708,7 @@ void LetExpr::step_interp() {
 bool LetExpr::has_variable() {
     return this->rhs->has_variable() || this->body->has_variable();
 }
-
+//
 //PTR(Expr) LetExpr::subst(std::string s, PTR(Expr) e) {
 //
 //    if (s != this->lhs) {

@@ -8,10 +8,10 @@
 #include "catch.hpp"
 #include "expr.h"
 #include "val.h"
-//#include "pointer.h"
-//#include "env.h"
+#include "pointer.h"
+#include "env.h"
 #include "step.hpp"
-//#include "cont.hpp"
+#include "cont.hpp"
 #include <iostream>
 #include <string>
 

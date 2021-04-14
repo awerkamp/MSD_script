@@ -1,6 +1,6 @@
 INCS = cmdline.h
-OBJS = main.o use_arguments.o expr.o tests.o val.o env.o step.o cont.o step.o
-CXXFLAGS = --std=c++14 -O2 -fsanitize=undefined
+OBJS = main.o use_arguments.o expr.o tests.o val.o env.o step.o cont.o
+CXXFLAGS = --std=c++14 -O2 
 msd_script: $(OBJS) ; $(CXX) $(CXXFLAGS) -o msd_script $(OBJS)
 .PHONY: test
 test: msd_script ; ./msd_script --test
